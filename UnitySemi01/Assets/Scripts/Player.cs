@@ -43,6 +43,8 @@ public class Player : MonoBehaviour
         else
         {
             // 空中
+            Debug.Log(rigidbody2D.velocity.y);
+
             // Ｙ軸方向の速度で、上昇中か下降中かを設定する(０の時は下降設定)
             bool isJumpUp = rigidbody2D.velocity.y > 0 ? true : false;
             bool isJumpDown = rigidbody2D.velocity.y <= 0 ? true : false;
@@ -54,8 +56,7 @@ public class Player : MonoBehaviour
             animator.SetBool("Run", false);
         }
 
-
-        //着地していた時、
+        //着地していた時
         if (isGrounded)
         {
             // スペースキー入力をチェック
@@ -70,6 +71,7 @@ public class Player : MonoBehaviour
 
         // 入力を取得（WASDor十字キー）
         float inputX = Input.GetAxisRaw("Horizontal");
+
         // 左右入力があったら
         if (inputX != 0)
         {
@@ -81,8 +83,10 @@ public class Player : MonoBehaviour
             temp.x = inputX;
             transform.localScale = temp;
 
-            // 入力があるときは走り状態へ
-            animator.SetBool("Run", true);
+            if (isGrounded) { 
+                // 入力があるときは走り状態へ
+                animator.SetBool("Run", true);
+            }
         }
         else
         {
@@ -104,6 +108,7 @@ public class Player : MonoBehaviour
         // ジャンプ入力でジャンプさせる
         if (inputJump)
         {
+            rigidbody2D.velocity.Set(rigidbody2D.velocity.x, 0);    // Ｙ軸速度を０に
             rigidbody2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
             inputJump = false;
         }
@@ -124,6 +129,12 @@ public class Player : MonoBehaviour
     // 接地チェック
     bool checkGrounded()
     {
+        // 上昇中であれば着地しない（怪しい処理）
+        if ( rigidbody2D.velocity.y > 1.0f )
+        {
+            return false;
+        }
+
         Vector3 chkPos = transform.position;
         float boxHarfWitdh = boxcollider2D.size.x / 2;
         bool result = false;
@@ -131,9 +142,9 @@ public class Player : MonoBehaviour
 
         // ３点チェック（とりあえず）
         chkPos.x = transform.position.x - boxHarfWitdh;
-        Debug.Log(transform.position.x);
-        Debug.Log(boxHarfWitdh);
-        Debug.Log(chkPos.x);
+        //Debug.Log(transform.position.x);
+        //Debug.Log(boxHarfWitdh);
+        //Debug.Log(chkPos.x);
 
         for (; chkPos.x <= transform.position.x + boxHarfWitdh; chkPos.x += boxHarfWitdh)
         {
@@ -147,7 +158,6 @@ public class Player : MonoBehaviour
             Debug.DrawLine(chkPos + transform.up,
                 chkPos - lineLength,
                 Color.red);
-
         }
 
         return result;
