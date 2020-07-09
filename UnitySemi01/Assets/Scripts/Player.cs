@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Player : MonoBehaviour
 {
@@ -15,10 +16,11 @@ public class Player : MonoBehaviour
     private BoxCollider2D boxcollider2D;// コンポーネント用変数
     private Animator animator;          // コンポーネント用変数
     private bool isGrounded;            // 地上にいるかの判定
-
-    private float inputLR = 0;        // 左右入力
+    private float inputLR = 0;          // 左右入力
     private bool inputJump = false;     // ジャンプ入力
 
+    // const変数
+    const float JUMPUP_CHECK_SPEED = 10.0f;   // ジャンプ上昇中チェック用
 
     // Start is called before the first frame update
     void Start()
@@ -32,28 +34,23 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // 接地していなければジャンプ中設定
+        // 接地チェック
         if (isGrounded)
         {
             // 地上
             rigidbody2D.velocity.Set(rigidbody2D.velocity.x, 0);    // Ｙ軸速度を０に
-            animator.SetBool("JumpUp", false);      // ジャンプ上昇をOFF
-            animator.SetBool("JumpDown", false);    // ジャンプ下降をOFF 
+            animator.SetBool("JumpUp", false);                    // ジャンプ上昇をOFF
+            animator.SetBool("JumpDown", false);                  // ジャンプ下降をOFF 
         }
         else
         {
             // 空中
-            Debug.Log(rigidbody2D.velocity.y);
-
             // Ｙ軸方向の速度で、上昇中か下降中かを設定する(０の時は下降設定)
-            bool isJumpUp = rigidbody2D.velocity.y > 0 ? true : false;
-            bool isJumpDown = rigidbody2D.velocity.y <= 0 ? true : false;
-
+            bool isJumpUp = rigidbody2D.velocity.y > JUMPUP_CHECK_SPEED ? true : false;
+            bool isJumpDown = rigidbody2D.velocity.y <= 0f ? true : false;
+            // アニメーション設定
             animator.SetBool("JumpUp", isJumpUp);
             animator.SetBool("JumpDown", isJumpDown);
-
-            // Runアニメーションを止める
-            animator.SetBool("Run", false);
         }
 
         //着地していた時
@@ -66,6 +63,9 @@ public class Player : MonoBehaviour
                 inputJump = true;
                 // 着地判定をfalse
                 isGrounded = false;
+                // ジャンプ上昇へ
+                animator.SetBool("JumpUp", true);
+                animator.SetBool("JumpDown", false);
             }
         }
 
@@ -129,8 +129,8 @@ public class Player : MonoBehaviour
     // 接地チェック
     bool checkGrounded()
     {
-        // 上昇中であれば着地しない（怪しい処理）
-        if ( rigidbody2D.velocity.y > 1.0f )
+        // 上昇中は何もしない
+        if ( rigidbody2D.velocity.y > JUMPUP_CHECK_SPEED)
         {
             return false;
         }
@@ -142,11 +142,7 @@ public class Player : MonoBehaviour
 
         // ３点チェック（とりあえず）
         chkPos.x = transform.position.x - boxHarfWitdh;
-        //Debug.Log(transform.position.x);
-        //Debug.Log(boxHarfWitdh);
-        //Debug.Log(chkPos.x);
-
-        for (; chkPos.x <= transform.position.x + boxHarfWitdh; chkPos.x += boxHarfWitdh)
+        for (int loopNo = 0; loopNo < 3; ++loopNo )
         {
             // 自身の位置から↓に向かって線を引いて、地面に接触したかをチェックする
             result |= Physics2D.Linecast(
@@ -155,11 +151,24 @@ public class Player : MonoBehaviour
                 groundLayer
                 );
             // レイを表示してみる
-            Debug.DrawLine(chkPos + transform.up,
-                chkPos - lineLength,
-                Color.red);
-        }
+            //Debug.DrawLine(chkPos + transform.up,
+            //    chkPos - lineLength,
+            //    Color.red);
 
+            // オフセット加算
+            chkPos.x += boxHarfWitdh;
+        }
         return result;
+    }
+
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        // ヒットした瞬間
+    }
+
+    void OnCollisionStay2D(Collision2D other)
+    {
+        // 何かと接触している間ずっとこの関数を通る
     }
 }
