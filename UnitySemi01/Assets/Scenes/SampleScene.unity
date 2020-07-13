@@ -428,6 +428,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
+  shell1: {fileID: 4603681733173802183, guid: a6b75439d177d4e41ae49c1876d44c30, type: 3}
 --- !u!1 &2077754418
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     public float dashSpeedX = 120.0f;   // 歩くスピード
     public float jumpPower = 400.0f;  // ジャンプ力
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
+    public GameObject shell1;           // 通常弾
 
     // private変数(クラス外からアクセス不可能）
     // [SerializeField]をつけるとインスペクタで操作可能になる
@@ -18,6 +19,7 @@ public class Player : MonoBehaviour
     private bool isGrounded;            // 地上にいるかの判定
     private float inputLR = 0;          // 左右入力
     private bool inputJump = false;     // ジャンプ入力
+    private Vector3 offset = new Vector3(10.0f,30.0f,0);
 
     // const変数
     const float JUMPUP_CHECK_SPEED = 10.0f;   // ジャンプ上昇中チェック用
@@ -93,6 +95,15 @@ public class Player : MonoBehaviour
             inputLR = 0;
             // 入力がないときは走り状態解除
             animator.SetBool("Run", false);
+        }
+
+        // Ｚキー入力で発射
+        if ( Input.GetKeyDown(KeyCode.Z) )
+        {
+            // 弾起動
+            Instantiate(shell1,
+                transform.position + offset,
+                transform.rotation);
         }
     }
 
