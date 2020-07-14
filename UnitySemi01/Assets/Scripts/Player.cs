@@ -19,10 +19,11 @@ public class Player : MonoBehaviour
     private bool isGrounded;            // 地上にいるかの判定
     private float inputLR = 0;          // 左右入力
     private bool inputJump = false;     // ジャンプ入力
-    private Vector3 offset = new Vector3(10.0f,30.0f,0);
+    private float shotWait = 0;         // 発射間隔用
 
     // const変数
     const float JUMPUP_CHECK_SPEED = 10.0f;   // ジャンプ上昇中チェック用
+    const float SHOT_WAIT_DEFAULT = 0.2f;    // 発射アニメーション終了時間 
 
     // Start is called before the first frame update
     void Start()
@@ -97,13 +98,33 @@ public class Player : MonoBehaviour
             animator.SetBool("Run", false);
         }
 
-        // Ｚキー入力で発射
-        if ( Input.GetKeyDown(KeyCode.Z) )
+        // 発射待機をチェック
+        if (shotWait > 0)
         {
+            // 発射待機時間を減算する
+            shotWait -= Time.deltaTime;
+            if (shotWait <= 0)
+            {
+                // 発射フラグをOFFに
+                animator.SetBool("Shot", false);
+            }
+        }
+
+        // Ｚキー入力で発射
+        if (Input.GetKeyDown(KeyCode.Z))
+        {       
+            Vector3 bootOffset = new Vector3(30.0f, 36.0f, 0);
+            // ＰＬが向いている方向にオフセットをずらす
+            bootOffset.x *= transform.localScale.x;
             // 弾起動
             Instantiate(shell1,
-                transform.position + offset,
+                transform.position + bootOffset,
                 transform.rotation);
+
+            // 発射フラグをONに
+            animator.SetBool("Shot", true);
+            // 次弾発射までの待機時間を設定
+            shotWait = SHOT_WAIT_DEFAULT;
         }
     }
 
