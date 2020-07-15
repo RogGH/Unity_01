@@ -15,7 +15,9 @@ public class Player : MonoBehaviour
     // [SerializeField]をつけるとインスペクタで操作可能になる
     private Rigidbody2D rigidbody2D;    // コンポーネント用変数
     private BoxCollider2D boxcollider2D;// コンポーネント用変数
-    private Animator animator;          // コンポーネント用変数
+    private Animator animator;          // コンポーネント用変数 
+    private Animation animation;        // コンポーネント用変数
+
     private bool isGrounded;            // 地上にいるかの判定
     private float inputLR = 0;          // 左右入力
     private bool inputJump = false;     // ジャンプ入力
@@ -126,6 +128,13 @@ public class Player : MonoBehaviour
             // 次弾発射までの待機時間を設定
             shotWait = SHOT_WAIT_DEFAULT;
         }
+
+        // アニメーターの状態をいろいろとチェックしてみる
+        if (animator.GetBool("Run") )
+        {
+        }
+
+        Debug.Log(animator.GetCurrentAnimatorStateInfo(0).length);
     }
 
 
@@ -197,6 +206,7 @@ public class Player : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         // ヒットした瞬間
+        Debug.Log("Hit");
     }
 
     void OnCollisionStay2D(Collision2D other)
