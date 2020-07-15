@@ -16,13 +16,13 @@ public class Player : MonoBehaviour
     private Rigidbody2D rigidbody2D;    // コンポーネント用変数
     private BoxCollider2D boxcollider2D;// コンポーネント用変数
     private Animator animator;          // コンポーネント用変数 
-    private Animation animation;        // コンポーネント用変数
+    private AnimatorStateInfo animInfo;
 
     private bool isGrounded;            // 地上にいるかの判定
     private float inputLR = 0;          // 左右入力
     private bool inputJump = false;     // ジャンプ入力
     private float shotWait = 0;         // 発射間隔用
-
+ 
     // const変数
     const float JUMPUP_CHECK_SPEED = 10.0f;   // ジャンプ上昇中チェック用
     const float SHOT_WAIT_DEFAULT = 0.2f;    // 発射アニメーション終了時間 
@@ -34,6 +34,7 @@ public class Player : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         boxcollider2D = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
+        animInfo = animator.GetCurrentAnimatorStateInfo(0);
     }
 
     // Update is called once per frame
@@ -127,11 +128,12 @@ public class Player : MonoBehaviour
             animator.SetBool("Shot", true);
             // 次弾発射までの待機時間を設定
             shotWait = SHOT_WAIT_DEFAULT;
-        }
 
-        // アニメーターの状態をいろいろとチェックしてみる
-        if (animator.GetBool("Run") )
-        {
+            // 待機の時のみ撃つたび初期化してみる
+            if (false)
+            {
+                animator.ForceStateNormalizedTime(0);
+            }
         }
 
         Debug.Log(animator.GetCurrentAnimatorStateInfo(0).length);
