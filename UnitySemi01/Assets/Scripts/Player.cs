@@ -294,7 +294,10 @@ public class Player : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         // ヒットした瞬間
-        Debug.Log("Hit");
+        if (other.collider.tag == "Enemy")
+        {
+            Debug.Log("enemy Hit");
+        }
     }
 
     void OnCollisionStay2D(Collision2D other)
