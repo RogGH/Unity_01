@@ -26,12 +26,14 @@ public class Enemy1 : MonoBehaviour
         rigidbody2D.velocity = new Vector2(speed, rigidbody2D.velocity.y);
 
         // 壁にぶつかったら速度反転
+        // レイを飛ばす始点、方向、長さを設定する
         Vector3 chkPos = transform.position;
         float length = boxColi2D.size.x / 2;
         float offsetY = boxColi2D.offset.y * transform.localScale.y;
 
         chkPos.y += offsetY;
 
+        // レイを飛ばして地面レイヤーに接触しているかチェック
         RaycastHit2D result = 
             Physics2D.Raycast(
                 new Vector2(chkPos.x, chkPos.y),
@@ -39,13 +41,15 @@ public class Enemy1 : MonoBehaviour
                 length,
                 groundLayer);
 
+        // レイを可視化してみる（デバッグ表示
         Vector3 endPos = chkPos;
         endPos.x += length * (speed < 0 ? -1 : 1);
         Debug.DrawLine(chkPos,endPos, Color.red);
 
+        // 接触結果があるのかをチェック
         if ( result.collider != null )
         {
-            speed *= -1;
+            speed *= -1;            // 接触しているので速度を反転
         }
 
         // 反転処理（ｘのスケール値がー１になると反転するので、
@@ -57,17 +61,20 @@ public class Enemy1 : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
+        // 接触したタイミング
+        // 接触した相手のタグがPLShellかチェック
         if (col.tag == "PLShell")
         {
+            // 爆発エフェクトを出す
             Vector3 bootpos = transform.position;
             float offsetY = boxColi2D.offset.y;
-
             Instantiate(bomb1, 
                 new Vector3(transform.position.x, 
                 transform.position.y + (offsetY * transform.localScale.y),
                 transform.position.z),
                 transform.rotation);
 
+            // オブジェクトを消す
             Destroy(gameObject);
         }
     }
