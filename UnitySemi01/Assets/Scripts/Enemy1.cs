@@ -59,14 +59,29 @@ public class Enemy1 : MonoBehaviour
         transform.localScale = temp;
     }
 
+    private void OnCollisionEnter2D(Collision collision)
+    {
+        
+    }
+
     void OnTriggerEnter2D(Collider2D col)
     {
         // 接触したタイミング
+
+        // 接触した相手のタグがPlayerかチェック
+        if (col.tag == "Player")
+        {
+            // プレイヤーを取得して、HPを減らす
+            GameObject player = GameObject.Find("Player");
+            player.GetComponent<Player>().AddHitPoint(-5);
+
+        }
         // 接触した相手のタグがPLShellかチェック
+        else
         if (col.tag == "PLShell")
         {
             // 爆発エフェクトを出す
-            Vector3 bootpos = transform.position;
+             Vector3 bootpos = transform.position;
             float offsetY = boxColi2D.offset.y;
             Instantiate(bomb1, 
                 new Vector3(transform.position.x, 

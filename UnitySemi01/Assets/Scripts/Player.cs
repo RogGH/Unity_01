@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -15,17 +16,20 @@ public class Player : MonoBehaviour
     // [SerializeField]をつけるとインスペクタで操作可能になる
     private Rigidbody2D rigidbody2D;    // コンポーネント用変数
     private BoxCollider2D boxcollider2D;// コンポーネント用変数
-    private Animator animator;          // コンポーネント用変数 
+    private Animator animator;          // コンポーネント用変数
+    private Slider slider;              // コンポーネント用変数
 
     private string nowAnimName = null;  // 現在のアニメーションの名前
     private string oldAnimName = null;  // ひとつ前のアニメーションの名前
     private float nowAnimCtr = 0;       // アニメーションの再生場所を保存しておく
 
-    // プライベート変数
     private bool isGrounded;            // 地上にいるかの判定
     private float inputLR = 0;          // 左右入力
     private bool inputJump = false;     // ジャンプ入力
     private float shotWait = 0;         // 発射間隔用
+
+    // 
+    private int HitPoint = 0;         // 体力
  
     // const変数
     const float JUMPUP_CHECK_SPEED = 1.0f;   // ジャンプ上昇中チェック用
@@ -40,6 +44,11 @@ public class Player : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         boxcollider2D = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
+        // ゲームオブジェクトを検索したのち、スライダーのコンポーネントを取得 
+        slider = GameObject.Find("Slider").GetComponent<Slider>();
+
+        // パラメータを初期化
+        HitPoint = (int)(slider.maxValue);      // 最大値で設定
     }
 
 
@@ -135,6 +144,9 @@ public class Player : MonoBehaviour
     // 前処理
     void preSetup()
     {
+        // 体力値をバーに反映させる
+        slider.value = HitPoint;
+
         // アニメーションの名前を取得
         AnimatorClipInfo[]　currentClipInfo = this.animator.GetCurrentAnimatorClipInfo(0);
         string clipName = currentClipInfo[0].clip.name;
@@ -281,16 +293,6 @@ public class Player : MonoBehaviour
         }
     }
 
-
-
-
-
-
-
-
-
-
-
     void OnCollisionEnter2D(Collision2D other)
     {
         // ヒットした瞬間
@@ -303,5 +305,18 @@ public class Player : MonoBehaviour
     void OnCollisionStay2D(Collision2D other)
     {
         // 何かと接触している間ずっとこの関数を通る
+    }
+
+
+
+
+
+
+
+
+    // 外部呼出しメソッド
+    public void AddHitPoint(int point)
+    {
+        this.HitPoint += point;
     }
 }
