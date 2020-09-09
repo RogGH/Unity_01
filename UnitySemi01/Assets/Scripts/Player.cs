@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public float jumpPower = 400.0f;  // ジャンプ力
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
     public GameObject shell1;           // 通常弾
+    public float dmgHitBackPower = 100.0f;  // ヒットバック
 
     // private変数(クラス外からアクセス不可能）
     // [SerializeField]をつけるとインスペクタで操作可能になる
@@ -295,28 +296,31 @@ public class Player : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        // ヒットした瞬間
-        if (other.collider.tag == "Enemy")
-        {
-            Debug.Log("enemy Hit");
-        }
     }
 
     void OnCollisionStay2D(Collision2D other)
     {
-        // 何かと接触している間ずっとこの関数を通る
     }
-
-
-
-
-
-
-
 
     // 外部呼出しメソッド
     public void AddHitPoint(int point)
     {
+        // ＨＰに加算
         this.HitPoint += point;
+        // ダメージかチェック
+        if (point < 0)
+        {
+            // ダメージなので、ダメージ専用呼び出し処理
+
+            // 念のためマイナスになったら０に設定しておく
+            if (point < 0)
+            {
+                point = 0;
+            }
+        }
+        else
+        {
+            // 回復している
+        }
     }
 }
