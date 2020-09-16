@@ -8,6 +8,7 @@ public class Enemy1 : MonoBehaviour
 
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
     public GameObject bomb1;
+    public AudioClip explosionSE;       // 爆発SE
 
     private Rigidbody2D rigidbody2D;
     private BoxCollider2D boxColi2D;
@@ -28,7 +29,7 @@ public class Enemy1 : MonoBehaviour
         // 壁にぶつかったら速度反転
         // レイを飛ばす始点、方向、長さを設定する
         Vector3 chkPos = transform.position;
-        float length = boxColi2D.size.x / 2;
+        float length = (boxColi2D.size.x / 2) + 0.1f;
         float offsetY = boxColi2D.offset.y * transform.localScale.y;
 
         chkPos.y += offsetY;
@@ -71,6 +72,9 @@ public class Enemy1 : MonoBehaviour
                 transform.position.y + (offsetY * transform.localScale.y),
                 transform.position.z),
                 transform.rotation);
+
+            // オーディオを再生
+            AudioSource.PlayClipAtPoint(explosionSE, transform.position);
 
             // オブジェクトを消す
             Destroy(gameObject);

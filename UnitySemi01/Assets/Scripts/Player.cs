@@ -13,6 +13,13 @@ public class Player : MonoBehaviour
     public GameObject shell1;           // 通常弾
     public float dmgHitBackPower = 100.0f;  // ヒットバック
 
+
+    public AudioClip jumpSE;            // ジャンプの発射SE
+    public AudioClip landingSE;           // 着地の発射SE
+    public AudioClip damageSE;          // ダメージSE
+    public AudioClip shell1ShotSE;       // shell1の発射SE
+
+
     // private変数(クラス外からアクセス不可能）
     // [SerializeField]をつけるとインスペクタで操作可能になる
     private Rigidbody2D rigidbody2D;    // コンポーネント用変数
@@ -84,14 +91,29 @@ public class Player : MonoBehaviour
         // 物理演算はfixedupdateの周期で行われるため、移動処理の精度が上がる
 
         // 接地状態を更新
+        bool oldGrounded = isGrounded;
         isGrounded = checkGrounded();
 
         // ジャンプ入力でジャンプさせる
-        if (inputJump)
+        if (isGrounded)
         {
-            rigidbody2D.velocity.Set(rigidbody2D.velocity.x, 0);    // Ｙ軸速度を０に
-            rigidbody2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
-            inputJump = false;
+            if (inputJump)
+            {
+                rigidbody2D.velocity.Set(rigidbody2D.velocity.x, 0);    // Ｙ軸速度を０に
+                rigidbody2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+                inputJump = false;
+            }
+        }
+
+        // 落下中のみ
+        if (!(rigidbody2D.velocity.y > JUMPUP_CHECK_SPEED))
+        {
+            // 着地したかのチェック
+            if ( !oldGrounded && isGrounded )
+            {
+                // オーディオを再生
+                 AudioSource.PlayClipAtPoint(landingSE, transform.position);
+            }
         }
 
         // 左右入力をチェック
@@ -220,6 +242,8 @@ public class Player : MonoBehaviour
                 // ジャンプ上昇へ
                 animator.SetBool("JumpUp", true);
                 animator.SetBool("JumpDown", false);
+                // オーディオを再生
+                AudioSource.PlayClipAtPoint(jumpSE, transform.position);
             }
         }
     }
@@ -280,6 +304,8 @@ public class Player : MonoBehaviour
             Instantiate(shell1,
                 transform.position + bootOffset,
                 transform.rotation);
+            // オーディオを再生
+            AudioSource.PlayClipAtPoint(shell1ShotSE, transform.position);
 
             // 発射フラグをONに
             animator.SetBool("Shot", true);
@@ -292,6 +318,29 @@ public class Player : MonoBehaviour
                 animator.Play(nowAnimName, -1, 0);         // 最初から再生
             }
         }
+    }
+
+    IEnumerator Damage()
+    {
+        //レイヤーをPlayerDamageに変更
+        gameObject.layer = LayerMask.NameToLayer("PlayerInvincible");
+        //while文を10回ループ
+        int count = 10;
+        while (count > 0)
+        {
+            //透明にする
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            sr.color = new Color(1, 1, 1, 0);
+            //0.05秒待つ
+            yield return new WaitForSeconds(0.05f);
+            //元に戻す
+            sr.color = new Color(1, 1, 1, 1);
+            //0.05秒待つ
+            yield return new WaitForSeconds(0.05f);
+            count--;
+        }
+        //レイヤーをPlayerに戻す
+        gameObject.layer = LayerMask.NameToLayer("Player");
     }
 
     void OnCollisionEnter2D(Collision2D other)
@@ -311,16 +360,23 @@ public class Player : MonoBehaviour
         if (point < 0)
         {
             // ダメージなので、ダメージ専用呼び出し処理
+            AudioSource.PlayClipAtPoint(this.damageSE, this.transform.position);
+            this.StartCoroutine("Damage");
 
             // 念のためマイナスになったら０に設定しておく
-            if (point < 0)
+            if (this.HitPoint < 0)
             {
-                point = 0;
+                this.HitPoint = 0;
             }
         }
         else
         {
             // 回復している
+            // 最大値を超えないように設定
+            if (this.HitPoint > (int)(this.slider.maxValue) )
+            {
+                this.HitPoint = (int)(this.slider.maxValue);
+            }
         }
     }
 }

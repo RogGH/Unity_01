@@ -188,6 +188,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   bomb1: {fileID: 5109362322326883952, guid: ef4bd362119af78439744763e64deeb0, type: 3}
+  explosionSE: {fileID: 8300000, guid: b7d03c2acfafc2a4ab1dc98f8af4055e, type: 3}
 --- !u!1 &7885578248673314395
 GameObject:
   m_ObjectHideFlags: 0
