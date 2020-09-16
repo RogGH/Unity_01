@@ -13,6 +13,9 @@ public class Enemy1 : MonoBehaviour
     private Rigidbody2D rigidbody2D;
     private BoxCollider2D boxColi2D;
 
+    private const string MAIN_CAMERA_TAG_NAME = "MainCamera";
+    private bool isRendered = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +26,11 @@ public class Enemy1 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isRendered )
+        {
+            return;
+        }
+
         // 直線移動して、壁にぶつかったら反転する雑魚
         rigidbody2D.velocity = new Vector2(speed, rigidbody2D.velocity.y);
 
@@ -61,6 +69,11 @@ public class Enemy1 : MonoBehaviour
     }
     void OnTriggerEnter2D(Collider2D col)
     {
+        if (!isRendered)
+        {
+            return;
+        }
+
         // 接触したタイミング
         if (col.tag == "PLShell")
         {
@@ -75,9 +88,24 @@ public class Enemy1 : MonoBehaviour
 
             // オーディオを再生
             AudioSource.PlayClipAtPoint(explosionSE, transform.position);
+            // アイテムを落とす処理（とりあえず２５％）
+            if (Random.Range (0, 4) == 0) {
+                GameObject item = (GameObject)Resources.Load("Prefabs/Item1");
+                Vector3 bootPos = new Vector3(transform.position.x, transform.position.y + 10, transform.position.z);
+                Instantiate(item, bootPos, transform.rotation);
+            }
 
             // オブジェクトを消す
             Destroy(gameObject);
+        }
+    }
+
+    void OnWillRenderObject()
+    {        
+        //メインカメラに映った時だけ_isRenderedをtrue
+        if (UnityEngine.Camera.current.tag == MAIN_CAMERA_TAG_NAME)
+        {
+            isRendered = true;
         }
     }
 }
