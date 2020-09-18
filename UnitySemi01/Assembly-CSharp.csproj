@@ -60,8 +60,9 @@
     <Compile Include="Assets\Scripts\PLShell1.cs" />
     <Compile Include="Assets\Scripts\Camera.cs" />
     <Compile Include="Assets\Scripts\EnemyHit.cs" />
-    <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\ItemHit.cs" />
+    <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\Title.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
