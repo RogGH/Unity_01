@@ -91,7 +91,7 @@ public class Enemy1 : MonoBehaviour
             // アイテムを落とす処理（とりあえず２５％）
             if (Random.Range (0, 4) == 0) {
                 GameObject item = (GameObject)Resources.Load("Prefabs/Item1");
-                Vector3 bootPos = new Vector3(transform.position.x, transform.position.y + 10, transform.position.z);
+                Vector3 bootPos = new Vector3(transform.position.x, transform.position.y + 30, transform.position.z);
                 Instantiate(item, bootPos, transform.rotation);
             }
 
