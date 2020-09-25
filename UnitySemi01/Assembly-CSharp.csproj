@@ -57,14 +57,17 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Title.cs" />
     <Compile Include="Assets\Scripts\EffectBomb1.cs" />
+    <Compile Include="Assets\naichilab\FadeManager\Sample\FadeSample.cs" />
     <Compile Include="Assets\Scripts\Enemy1.cs" />
     <Compile Include="Assets\Scripts\PLShell1.cs" />
+    <Compile Include="Assets\naichilab\FadeManager\Scripts\FadeManager.cs" />
     <Compile Include="Assets\Scripts\Camera.cs" />
     <Compile Include="Assets\Scripts\EnemyHit.cs" />
     <Compile Include="Assets\Scripts\ItemHit.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
-    <Compile Include="Assets\naichilab\FadeManager\Sample\FadeSample.cs" />
-    <Compile Include="Assets\naichilab\FadeManager\Scripts\FadeManager.cs" />
+    <Compile Include="Assets\Scripts\Select.cs" />
+    <Compile Include="Assets\Scripts\Clear.cs" />
+    <Compile Include="Assets\Scripts\GameOver.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

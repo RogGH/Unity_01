@@ -66,6 +66,13 @@ public class Player : MonoBehaviour
         // 前処理
         preSetup();
 
+        // 死亡チェック
+        if (HitPoint <= 0)
+        {
+            // 死亡しているのでこれ以上の処理は行わない。
+            return;
+        }
+
         // ジャンプ制御
         jumpControl();
 
@@ -343,6 +350,32 @@ public class Player : MonoBehaviour
         gameObject.layer = LayerMask.NameToLayer("Player");
     }
 
+    IEnumerator Die()
+    {
+        // 爆発エフェクトを起動
+        Vector3 bootpos = transform.position;
+        float offsetY = 25.0f;
+        GameObject bomb = (GameObject)Resources.Load("Prefabs/Bomb1");
+        Instantiate(bomb,
+            new Vector3(transform.position.x,
+            transform.position.y + (offsetY * transform.localScale.y),
+            transform.position.z),
+            transform.rotation);
+
+        // 透明にする
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        sr.color = new Color(1, 1, 1, 0);
+
+        // 待つ
+        yield return new WaitForSeconds(2f);
+
+        // ゲームオブジェクトを破棄
+        Destroy(gameObject);
+
+        // ゲームオーバーシーンへ
+        FadeManager.Instance.LoadScene("GameOver", 0.5f);
+    }
+
     void OnCollisionEnter2D(Collision2D other)
     {
     }
@@ -354,19 +387,32 @@ public class Player : MonoBehaviour
     // 外部呼出しメソッド
     public void AddHitPoint(int point)
     {
+        // 体力０の時は行わない
+        if (this.HitPoint <= 0)
+        {
+            return;
+        }
+
         // ＨＰに加算
         this.HitPoint += point;
         // ダメージかチェック
         if (point < 0)
         {
-            // ダメージなので、ダメージ専用呼び出し処理
-            AudioSource.PlayClipAtPoint(this.damageSE, this.transform.position);
-            this.StartCoroutine("Damage");
-
             // 念のためマイナスになったら０に設定しておく
-            if (this.HitPoint < 0)
+            if (this.HitPoint <= 0)
             {
+                // 死亡
                 this.HitPoint = 0;
+                this.StartCoroutine("Die");
+                // 速度とか初期化しとく
+                rigidbody2D.velocity.Set(0, 0);
+                rigidbody2D.gravityScale = 0;
+            }
+            else
+            {
+                // ダメージなので、ダメージ専用呼び出し処理
+                AudioSource.PlayClipAtPoint(this.damageSE, this.transform.position);
+                this.StartCoroutine("Damage");
             }
         }
         else

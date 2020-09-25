@@ -17,7 +17,15 @@ public class Camera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // エンターでクリアへ
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            FadeManager.Instance.LoadScene("Clear", 0.5f);
+        }else
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            FadeManager.Instance.LoadScene("GameOver", 0.5f);
+        }
     }
 
     void LateUpdate()
