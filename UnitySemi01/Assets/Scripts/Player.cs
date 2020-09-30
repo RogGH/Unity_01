@@ -11,14 +11,11 @@ public class Player : MonoBehaviour
     public float jumpPower = 400.0f;  // ジャンプ力
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
     public GameObject shell1;           // 通常弾
-    public float dmgHitBackPower = 100.0f;  // ヒットバック
-
 
     public AudioClip jumpSE;            // ジャンプの発射SE
     public AudioClip landingSE;           // 着地の発射SE
     public AudioClip damageSE;          // ダメージSE
     public AudioClip shell1ShotSE;       // shell1の発射SE
-
 
     // private変数(クラス外からアクセス不可能）
     // [SerializeField]をつけるとインスペクタで操作可能になる
@@ -26,6 +23,7 @@ public class Player : MonoBehaviour
     private BoxCollider2D boxcollider2D;// コンポーネント用変数
     private Animator animator;          // コンポーネント用変数
     private Slider slider;              // コンポーネント用変数
+    private GameObject mainCamera;       // カメラ
 
     private string nowAnimName = null;  // 現在のアニメーションの名前
     private string oldAnimName = null;  // ひとつ前のアニメーションの名前
@@ -54,6 +52,7 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         // ゲームオブジェクトを検索したのち、スライダーのコンポーネントを取得 
         slider = GameObject.Find("Slider").GetComponent<Slider>();
+        mainCamera = GameObject.Find("MainCamera");
 
         // パラメータを初期化
         HitPoint = (int)(slider.maxValue);      // 最大値で設定
@@ -97,6 +96,13 @@ public class Player : MonoBehaviour
         // fixedupdate内部でrididbody関連の処理を行うのが正しい
         // 物理演算はfixedupdateの周期で行われるため、移動処理の精度が上がる
 
+        // 体力０の時は行わない
+        if (this.HitPoint <= 0)
+        {
+            rigidbody2D.velocity = new Vector2(0, 0);
+            return;
+        }
+
         // 接地状態を更新
         bool oldGrounded = isGrounded;
         isGrounded = checkGrounded();
@@ -128,11 +134,40 @@ public class Player : MonoBehaviour
         {
             // 入力方向へ移動
             rigidbody2D.velocity = new Vector2(inputLR * dashSpeedX, rigidbody2D.velocity.y);
+
+            // カメラ制御
+            cameraOutControll();
         }
         else
         {
             // 入力がないので停止
             rigidbody2D.velocity = new Vector2(0, rigidbody2D.velocity.y);
+        }
+    }
+
+    void cameraOutControll()
+    {              
+        //カメラ表示領域の左下をワールド座標に変換
+        Vector2 min = Camera.main.ViewportToWorldPoint(new Vector2(0, 0));
+        //カメラ表示領域の右上をワールド座標に変換
+        Vector2 max = Camera.main.ViewportToWorldPoint(new Vector2(1, 1));
+        //ユニティちゃんのポジションを取得
+        Vector2 pos = transform.position;
+        //ユニティちゃんのx座標の移動範囲をClampメソッドで制限
+        pos.x = Mathf.Clamp(pos.x, min.x + 0.5f, max.x);
+        transform.position = pos;
+    }
+
+    void cameraDieControll()
+    {
+        //カメラ表示領域の左下をワールド座標に変換
+        Vector2 min = Camera.main.ViewportToWorldPoint(new Vector2(0, 0));
+
+        //現在のカメラの位置から低くした位置を下回った時
+        if (gameObject.transform.position.y < min.y - 50)
+        {
+            // 即死ダメージを与える
+            AddHitPoint(-999);
         }
     }
 
@@ -209,6 +244,9 @@ public class Player : MonoBehaviour
             animator.SetBool("JumpUp", isJumpUp);
             animator.SetBool("JumpDown", isJumpDown);
         }
+
+        // 落下死亡処理を入れる
+        cameraDieControll();
     }
 
     // 後処理
@@ -384,6 +422,18 @@ public class Player : MonoBehaviour
     {
     }
 
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        // クリアラインに入ったら
+        if (collision.tag == "ClearLine")
+        {
+            //ゲームクリアー
+            FadeManager.Instance.LoadScene("Clear", 0.5f);
+        }
+    }
+
+
+
     // 外部呼出しメソッド
     public void AddHitPoint(int point)
     {
@@ -404,9 +454,6 @@ public class Player : MonoBehaviour
                 // 死亡
                 this.HitPoint = 0;
                 this.StartCoroutine("Die");
-                // 速度とか初期化しとく
-                rigidbody2D.velocity.Set(0, 0);
-                rigidbody2D.gravityScale = 0;
             }
             else
             {
