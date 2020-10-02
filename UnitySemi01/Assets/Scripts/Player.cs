@@ -149,7 +149,7 @@ public class Player : MonoBehaviour
     {              
         //カメラ表示領域の左下をワールド座標に変換
         Vector2 min = Camera.main.ViewportToWorldPoint(new Vector2(0, 0));
-        //カメラ表示領域の右上をワールド座標に変換
+        //I
         Vector2 max = Camera.main.ViewportToWorldPoint(new Vector2(1, 1));
         //ユニティちゃんのポジションを取得
         Vector2 pos = transform.position;
