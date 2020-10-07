@@ -10,7 +10,6 @@ public class Player : MonoBehaviour
     public float dashSpeedX = 120.0f;   // 歩くスピード
     public float jumpPower = 400.0f;  // ジャンプ力
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
-    public GameObject shell1;           // 通常弾
 
     public AudioClip jumpSE;            // ジャンプの発射SE
     public AudioClip landingSE;           // 着地の発射SE
@@ -19,8 +18,8 @@ public class Player : MonoBehaviour
 
     // private変数(クラス外からアクセス不可能）
     // [SerializeField]をつけるとインスペクタで操作可能になる
-    private Rigidbody2D rigidbody2D;    // コンポーネント用変数
-    private BoxCollider2D boxcollider2D;// コンポーネント用変数
+    private Rigidbody2D rigid2D;    // コンポーネント用変数
+    private BoxCollider2D boxcolli2D;// コンポーネント用変数
     private Animator animator;          // コンポーネント用変数
     private Slider slider;              // コンポーネント用変数
     private GameObject mainCamera;       // カメラ
@@ -47,11 +46,11 @@ public class Player : MonoBehaviour
     void Start()
     {
         // コンポーネントを取得
-        rigidbody2D = GetComponent<Rigidbody2D>();
-        boxcollider2D = GetComponent<BoxCollider2D>();
+        rigid2D = GetComponent<Rigidbody2D>();
+        boxcolli2D = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
         // ゲームオブジェクトを検索したのち、スライダーのコンポーネントを取得 
-        slider = GameObject.Find("Slider").GetComponent<Slider>();
+        slider = GameObject.Find("PlayerSlider").GetComponent<Slider>();
         mainCamera = GameObject.Find("MainCamera");
 
         // パラメータを初期化
@@ -99,7 +98,7 @@ public class Player : MonoBehaviour
         // 体力０の時は行わない
         if (this.HitPoint <= 0)
         {
-            rigidbody2D.velocity = new Vector2(0, 0);
+            rigid2D.velocity = new Vector2(0, 0);
             return;
         }
 
@@ -112,14 +111,14 @@ public class Player : MonoBehaviour
         {
             if (inputJump)
             {
-                rigidbody2D.velocity.Set(rigidbody2D.velocity.x, 0);    // Ｙ軸速度を０に
-                rigidbody2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+                rigid2D.velocity.Set(rigid2D.velocity.x, 0);    // Ｙ軸速度を０に
+                rigid2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
                 inputJump = false;
             }
         }
 
         // 落下中のみ
-        if (!(rigidbody2D.velocity.y > JUMPUP_CHECK_SPEED))
+        if (!(rigid2D.velocity.y > JUMPUP_CHECK_SPEED))
         {
             // 着地したかのチェック
             if ( !oldGrounded && isGrounded )
@@ -133,7 +132,7 @@ public class Player : MonoBehaviour
         if (inputLR != 0)
         {
             // 入力方向へ移動
-            rigidbody2D.velocity = new Vector2(inputLR * dashSpeedX, rigidbody2D.velocity.y);
+            rigid2D.velocity = new Vector2(inputLR * dashSpeedX, rigid2D.velocity.y);
 
             // カメラ制御
             cameraOutControll();
@@ -141,7 +140,7 @@ public class Player : MonoBehaviour
         else
         {
             // 入力がないので停止
-            rigidbody2D.velocity = new Vector2(0, rigidbody2D.velocity.y);
+            rigid2D.velocity = new Vector2(0, rigid2D.velocity.y);
         }
     }
 
@@ -175,13 +174,13 @@ public class Player : MonoBehaviour
     bool checkGrounded()
     {
         // 上昇中は何もしない
-        if ( rigidbody2D.velocity.y > JUMPUP_CHECK_SPEED)
+        if ( rigid2D.velocity.y > JUMPUP_CHECK_SPEED)
         {
             return false;
         }
 
         Vector3 chkPos = transform.position;
-        float boxHarfWitdh = boxcollider2D.size.x / 2;
+        float boxHarfWitdh = boxcolli2D.size.x / 2;
         bool result = false;
         Vector3 lineLength = transform.up * 0.05f;
 
@@ -230,7 +229,7 @@ public class Player : MonoBehaviour
         if (isGrounded)
         {
             // 地上
-            rigidbody2D.velocity.Set(rigidbody2D.velocity.x, 0);    // Ｙ軸速度を０に
+            rigid2D.velocity.Set(rigid2D.velocity.x, 0);    // Ｙ軸速度を０に
             animator.SetBool("JumpUp", false);                    // ジャンプ上昇をOFF
             animator.SetBool("JumpDown", false);                  // ジャンプ下降をOFF 
         }
@@ -238,8 +237,8 @@ public class Player : MonoBehaviour
         {
             // 空中
             // Ｙ軸方向の速度で、上昇中か下降中かを設定する(０の時は下降設定)
-            bool isJumpUp = rigidbody2D.velocity.y > JUMPUP_CHECK_SPEED ? true : false;
-            bool isJumpDown = rigidbody2D.velocity.y <= 0f ? true : false;
+            bool isJumpUp = rigid2D.velocity.y > JUMPUP_CHECK_SPEED ? true : false;
+            bool isJumpDown = rigid2D.velocity.y <= 0f ? true : false;
             // アニメーション設定
             animator.SetBool("JumpUp", isJumpUp);
             animator.SetBool("JumpDown", isJumpDown);
@@ -342,6 +341,8 @@ public class Player : MonoBehaviour
         // Ｚキー入力で発射
         if (Input.GetKeyDown(KeyCode.Z))
         {
+            GameObject shell1 = (GameObject)Resources.Load("Prefabs/PLShell1");
+
             Vector3 bootOffset = isGrounded  ? SHOT_GROUND_OFS : SHOT_JUMP_OFS;
             // ＰＬが向いている方向にオフセットをずらす
             bootOffset.x *= transform.localScale.x;

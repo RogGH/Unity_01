@@ -10,7 +10,7 @@ public class Enemy1 : MonoBehaviour
     public GameObject bomb1;
     public AudioClip explosionSE;       // 爆発SE
 
-    private Rigidbody2D rigidbody2D;
+    private Rigidbody2D rigid2D;
     private BoxCollider2D boxColi2D;
 
     private const string MAIN_CAMERA_TAG_NAME = "MainCamera";
@@ -19,7 +19,7 @@ public class Enemy1 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rigidbody2D = GetComponent<Rigidbody2D>();
+        rigid2D = GetComponent<Rigidbody2D>();
         boxColi2D = GetComponent<BoxCollider2D>();
     }
 
@@ -32,7 +32,7 @@ public class Enemy1 : MonoBehaviour
         }
 
         // 直線移動して、壁にぶつかったら反転する雑魚
-        rigidbody2D.velocity = new Vector2(speed, rigidbody2D.velocity.y);
+        rigid2D.velocity = new Vector2(speed, rigid2D.velocity.y);
 
         // 壁にぶつかったら速度反転
         // レイを飛ばす始点、方向、長さを設定する

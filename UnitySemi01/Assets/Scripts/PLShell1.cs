@@ -5,7 +5,7 @@ using UnityEngine;
 public class PLShell1 : MonoBehaviour
 {
     private GameObject player;
-    private Rigidbody2D rigidbody2D;
+    private Rigidbody2D rigid2D;
     public int speed = 400;
     public int liveSecond = 3;
 
@@ -13,11 +13,11 @@ public class PLShell1 : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player");        // プレイヤーを取得
-        rigidbody2D = GetComponent<Rigidbody2D>(); // コンポーネント取得
+        rigid2D = GetComponent<Rigidbody2D>(); // コンポーネント取得
         // PL向きを取得
         float plDir = player.transform.localScale.x;
         // 速度設定
-        rigidbody2D.velocity = new Vector2(plDir * speed, 0);
+        rigid2D.velocity = new Vector2(plDir * speed, 0);
         //画像の向きをユニティちゃんに合わせる
         transform.localScale = new Vector2(plDir, transform.localScale.y);
         //〇秒後に消滅
@@ -33,14 +33,6 @@ public class PLShell1 : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.layer == 8 )
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.gameObject.tag == "Enemy" )
         {
             Destroy(gameObject);
         }

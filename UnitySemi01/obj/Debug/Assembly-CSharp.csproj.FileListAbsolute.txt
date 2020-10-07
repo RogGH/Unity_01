@@ -291,3 +291,11 @@ C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\UnityEditor.TestRunner.pdb
 C:\github\Unity_01\UnitySemi01\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 C:\github\Unity_01\UnitySemi01\obj\Debug\Assembly-CSharp.dll
 C:\github\Unity_01\UnitySemi01\obj\Debug\Assembly-CSharp.pdb
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\Cinemachine.dll
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\com.unity.cinemachine.editor.dll
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\UnityEditor.Purchasing.dll
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\UnityEngine.Purchasing.dll
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\Cinemachine.pdb
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\UnityEngine.Purchasing.pdb
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\UnityEditor.Purchasing.pdb
+C:\github\Unity_01\UnitySemi01\Temp\bin\Debug\com.unity.cinemachine.editor.pdb
