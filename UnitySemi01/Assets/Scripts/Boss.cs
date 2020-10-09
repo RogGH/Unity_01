@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class Boss : MonoBehaviour
@@ -28,6 +25,7 @@ public class Boss : MonoBehaviour
     private int actMethodNo = 0;
     private float ctr0;
     private float ctr1;
+    private float ctr2;
     // 関数テーブル
     delegate void ActFunc();
     private ActFunc[]actFuncTbl;
@@ -40,7 +38,9 @@ public class Boss : MonoBehaviour
     const string ANAME_IDLE = "BS_Idle";
     const string ANAME_PAUSE = "BS_Pause";
     const string ANAME_SHOT_READY_F = "BS_ShotReadyF";
+    const string ANAME_SHOT_READY_SD = "BS_ShotReadySlopeD";
     const string ANAME_SHOT_F = "BS_ShotF";
+    const string ANAME_SHOT_SD = "BS_ShotSlopeD";
     const string ANAME_SLASH = "BS_Slash";
     const string ANAME_DIE = "BS_Die";
 
@@ -51,9 +51,15 @@ public class Boss : MonoBehaviour
     private int HitPoint = 0;
 
     // 調整用
-    public float jumpPower = 400;
-    public float runSpeed = 200;
-    public float runLength = 48;
+    [SerializeField] float jumpPower = 400;
+    [SerializeField] float runSpeed = 300;
+    [SerializeField] float runLength = 48;
+    [SerializeField] float shotReadyWait = 0.3f;
+    [SerializeField] float groundShotWait = 0.4f;
+    [SerializeField] float airShotReadyWait = 0.3f;
+    [SerializeField] float airShotWait = 0.4f;
+    [SerializeField] float landingWait = 0.15f;
+    [SerializeField] float swartWait = 0.5f;
 
     // ＳＥ
     public AudioClip damageSE;          // ダメージSE
@@ -145,7 +151,7 @@ public class Boss : MonoBehaviour
                 break;
 
             case 1:
-                ctr0 = 2;
+                ctr0 = 2.0f;        // ＨＰがマックスになる時間
                 ctr1 = bossSlider.GetComponent<Slider>().maxValue / ctr0 * Time.deltaTime;
 
                 ++actMethodNo;
@@ -170,19 +176,49 @@ public class Boss : MonoBehaviour
         }
     }
 
+
+    void shotMethodCtrl(int rotDegree)
+    {
+        // 発射
+        GameObject shell1 = (GameObject)Resources.Load("Prefabs/EnemyShell1");
+
+		Vector3 bootOffset;
+		if ( rotDegree == 0 )
+		{
+			// 正面
+			bootOffset = new Vector3(30, 48, 0);
+		}
+		else {
+			// 斜め下
+			bootOffset = new Vector3(30, 20, 0);
+		}
+		// ＰＬが向いている方向にオフセットをずらす
+		bootOffset.x *= transform.localScale.x;
+
+        // 弾起動
+        GameObject boot;
+        boot = Instantiate(shell1,
+            transform.position + bootOffset,
+            transform.rotation);
+        boot.GetComponent<EnemyShell1>().setup(
+            (int)transform.localScale.x,
+            rotDegree);
+    }
+
     void ActShotF()
     {
         switch (actMethodNo)
         {
             case 0:
                 animator.Play(ANAME_SHOT_READY_F);
-                setDirToPl();
 
-                ctr0 = 0.5f;
+                ctr0 = shotReadyWait;
                 ++actMethodNo;
                 break;
 
             case 1:
+                setDirToPl();
+
                 if (decCtr0())
                 {
                     ++actMethodNo;
@@ -191,27 +227,27 @@ public class Boss : MonoBehaviour
 
             case 2:
                 animator.Play(ANAME_SHOT_F);
-
-                GameObject shell1 = (GameObject)Resources.Load("Prefabs/EnemyShell1");
-
-                Vector3 bootOffset = new Vector3(30, 48, 0);
-                // ＰＬが向いている方向にオフセットをずらす
-                bootOffset.x *= transform.localScale.x;
-
-                // 弾起動
-                Instantiate(shell1,
-                    transform.position + bootOffset,
-                    transform.rotation);
-                shell1.GetComponent<EnemyShell1>().setup(
-                    (int)-transform.localScale.x,
-                    0);
-
                 ++actMethodNo;
 
-                ctr0 = 1.0f;
+                ctr0 = groundShotWait;        // 終了時間
+                ctr1 = 0;           // 発射数
+                ctr2 = 2;           // 
+
                 break;
 
             case 3:
+
+                if (decCtr1())
+                {
+                    if (ctr2 > 0)
+                    {
+                        --ctr2;                         // 発射数減算
+                        ctr1 = 0.1f;                    // 再発射間隔を設定
+                        // 正面発射
+                        shotMethodCtrl(0);
+                    }
+                }
+
                 if (decCtr0())
                 {
                     changeActNo(ACTNO.JUMP_SHOT);
@@ -221,11 +257,26 @@ public class Boss : MonoBehaviour
         }
     }
 
+    enum JS_NO
+    {
+        UP_INIT,
+        UP_MAIN,
+        SHOT_READY_INIT,
+        SHOT_READY_MAIN,
+        SHOT_INIT,
+        SHOT_MAIN,
+
+        DOWN_INIT,
+        DOWN_MAIN,
+
+        LAND_INIT,
+        LAND_MAIN,
+    };
     void ActJumpShot()
     {
         switch (actMethodNo)
         {
-            case 0:
+            case (int)JS_NO.UP_INIT:
                 animator.Play(ANAME_JUMP_U);
 
                 rigid2D.velocity.Set(0, 0);    // Ｙ軸速度を０に
@@ -234,30 +285,112 @@ public class Boss : MonoBehaviour
                 ++actMethodNo;
                 break;
 
-            case 1:
+            case (int)JS_NO.UP_MAIN:
                 if (rigid2D.velocity.y <= 0)
                 {
-                    if (getAnimeName() != ANAME_JUMP_D)
+                    // ここでジャンプショットに行くかは確率
+                    if (Random.Range(0, 10) < 5 )
                     {
-                        animator.Play(ANAME_JUMP_D);
+                        actMethodNo = (int)JS_NO.SHOT_READY_INIT;
                     }
-
-                    // 着地したら終了
-                    if (checkGrounded())
+                    else
                     {
-                        ++actMethodNo;
+                        actMethodNo = (int)JS_NO.DOWN_INIT;
                     }
+                    ActJumpShot();
                 }
                 break;
 
-            case 2:
-                animator.Play(ANAME_LANDING);
-                ctr0 = 0.2f;
-                ++actMethodNo;
+            case (int)JS_NO.SHOT_READY_INIT:
+                float height = transform.position.y - getPlLengthY() + 30.0f;
+                if (Mathf.Abs(height) <= 30.0f)
+                {
+                    // 正面
+                    animator.Play(ANAME_SHOT_READY_F);
+                }
+                else
+                {
+                    // 斜め
+                    animator.Play(ANAME_SHOT_READY_SD);
+                }
 
+                rigid2D.velocity = new Vector2(0, 0);       // Ｙ軸速度を０に
+                rigid2D.angularVelocity = 0;
+                rigid2D.bodyType = RigidbodyType2D.Kinematic;
+
+                ctr0 = airShotReadyWait;
+                ctr1 = 0;           // 発射数
+                ctr2 = 2;           // 
+
+                ++actMethodNo;
+                break;
+            case (int)JS_NO.SHOT_READY_MAIN:
+                setDirToPl();
+                if (decCtr0())
+                {
+                    ++actMethodNo;
+                }
                 break;
 
-            case 3:
+            case (int)JS_NO.SHOT_INIT:
+
+                if( getAnimeName() == ANAME_SHOT_READY_F)
+                {
+                    // 正面
+                    animator.Play(ANAME_SHOT_F);
+                }
+                else
+                {
+                    // 斜め
+                    animator.Play(ANAME_SHOT_SD);
+                }
+
+				ctr0 = airShotWait;        // 終了時間
+				ctr1 = 0;           // 発射数
+				ctr2 = 2;           // 
+
+                ++actMethodNo;
+                break;
+            case (int)JS_NO.SHOT_MAIN:
+
+                if (decCtr1())
+                {
+                    if (ctr2 > 0)
+                    {
+                        --ctr2;                         // 発射数減算
+                        ctr1 = 0.1f;                    // 再発射間隔を設定 
+                        shotMethodCtrl(getAnimeName() == ANAME_SHOT_F ? 0 : -45);
+                    }
+                }
+
+                if (decCtr0())
+                {
+                    actMethodNo = (int)JS_NO.DOWN_INIT;
+                    rigid2D.bodyType = RigidbodyType2D.Dynamic;
+                }
+                break;
+
+            case (int)JS_NO.DOWN_INIT:
+                animator.Play(ANAME_JUMP_D);
+                ++actMethodNo;
+                break;
+            case (int)JS_NO.DOWN_MAIN:
+
+                // 着地したら終了
+                if (checkGrounded())
+                {
+                    actMethodNo = (int)JS_NO.LAND_INIT;
+                }
+                break;
+
+            case (int)JS_NO.LAND_INIT:
+
+                animator.Play(ANAME_LANDING);
+                ctr0 = landingWait;
+                ++actMethodNo;
+                break;
+
+            case (int)JS_NO.LAND_MAIN:
                 // 着地したら終了
                 if (decCtr0())
                 {
@@ -281,7 +414,7 @@ public class Boss : MonoBehaviour
                 setDirToPl();
                 rigid2D.velocity = new Vector2(runSpeed * getPlDir(), 0);
 
-                float length = getPlObject().transform.position.x - transform.position.x;
+                float length = getPlLengthX();
                 if ( Mathf.Abs(length) <= runLength) {
 //                    rigid2D.velocity = new Vector2(0, 0);
                     ++actMethodNo;
@@ -290,11 +423,21 @@ public class Boss : MonoBehaviour
 
             case 2:
                 animator.Play(ANAME_SLASH);
-                ctr0 = 1.0f;
+                ctr0 = swartWait;
                 ++actMethodNo;
                 break;
 
             case 3:
+                // 現在のアニメーターの状態をチェック
+                if ( 0.3 < getAnimeCtr() && getAnimeCtr() < 0.6 )
+                {
+                    transform.root.GetChild(1).gameObject.SetActive(true);
+                }
+                else
+                {
+                    transform.root.GetChild(1).gameObject.SetActive(false);
+                }
+
                 if (decCtr0())
                 {
                     changeActNo(ACTNO.SHOT_F);
@@ -309,9 +452,10 @@ public class Boss : MonoBehaviour
         switch (actMethodNo) {
             case 0:
                 animator.Play(ANAME_DIE);
+                rigid2D.bodyType = RigidbodyType2D.Dynamic;
 
                 // 子供を消す
-                GameObject hit = transform.Find("BossAtkHit").gameObject;
+                GameObject hit = transform.Find("BossHit").gameObject;
                 Destroy(hit);
 
                 gameObject.layer = LayerMask.NameToLayer("Player");
@@ -379,6 +523,16 @@ public class Boss : MonoBehaviour
         }
         return false;
     }
+    private bool decCtr1()
+    {
+        ctr1 -= Time.deltaTime;
+        if (ctr1 <= 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
 
     private void changeActNo(ACTNO no)
     {
@@ -390,9 +544,30 @@ public class Boss : MonoBehaviour
         GameObject pl = GameObject.Find("Player");
         return pl;
     }
+    private float getPlLengthX()
+    {
+        if (getPlObject() == null)
+        {
+            return 0;
+        }
+        return getPlObject().transform.position.x - transform.position.x;
+    }
+    private float getPlLengthY()
+    {
+        if (getPlObject() == null)
+        {
+            return 0;
+        }
+        return getPlObject().transform.position.y - transform.position.y;
+    }
+
     private int getPlDir()
     {
-        return getPlObject().transform.position.x - transform.position.x < 0 ? -1 : 1;
+        if (getPlObject() == null )
+        {
+            return (int)transform.localScale.x;
+        }
+        return getPlLengthX() < 0 ? -1 : 1;
     }
     private void setDirToPl()
     {

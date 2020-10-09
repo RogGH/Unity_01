@@ -15,8 +15,8 @@ public class TextFade : MonoBehaviour
 
     private enum ObjType
     {
-        TEXT,
-        IMAGE
+		TEXT,
+		IMAGE
     };
     private ObjType thisObjType = ObjType.TEXT;
 

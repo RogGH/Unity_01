@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyHit : MonoBehaviour
 {
     public int AtkPower = 5;
+    public bool hitEndMaster = false;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +29,11 @@ public class EnemyHit : MonoBehaviour
             GameObject player = GameObject.Find("Player");
             player.GetComponent<Player>().AddHitPoint(-AtkPower);
 
+            // 消す
+            if (hitEndMaster)
+            {
+                Destroy(transform.root.gameObject);
+            }
         }
     }
 }
