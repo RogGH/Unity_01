@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class TextFade : MonoBehaviour
 {
-    //public
-    public float speed = 1.0f;
+	//public
+	[SerializeField] private bool enterSpdUpEnabled = true;
+	public float speed = 1.0f;
 
     //private
     private Text text;
@@ -38,14 +39,17 @@ public class TextFade : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // エンター押されたら早く
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            speed = 10.0f;
-        }
+		// エンター押されたら早く
+		if (enterSpdUpEnabled)
+		{
+			if (Input.GetKeyDown(KeyCode.Return))
+			{
+				speed = 10.0f;
+			}
+		}
 
-        //オブジェクトのAlpha値を更新
-        if (thisObjType == ObjType.IMAGE)
+		//オブジェクトのAlpha値を更新
+		if (thisObjType == ObjType.IMAGE)
         {
             image.color = GetAlphaColor(image.color);
         }

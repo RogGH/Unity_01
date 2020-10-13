@@ -1,45 +1,90 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MainCamera : MonoBehaviour
 {
-    public float cameraOffsetY = 80.0f;
+	[SerializeField] private bool retryEnabled = true;
+	[SerializeField] private int debugRetryNo = 1;
 
-    GameObject player;
+	public GameObject player;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        player = GameObject.Find("Player");
-    }
+	RetrySystem retrySystem;
 
-    // Update is called once per frame
-    void Update()
-    {
-        // エンターでクリアへ
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            FadeManager.Instance.LoadScene("Clear", 0.5f);
-        }else
-        if (Input.GetKeyDown(KeyCode.Backspace))
-        {
-            FadeManager.Instance.LoadScene("GameOver", 0.5f);
-        }
-    }
+	private int Stage1Stat = 0;
+	private Text readyText;
+	private float ctr0;
 
-    void LateUpdate()
-    {
-        /*
-        // Updateの後に行われる処理。
-        // プレイヤーの移動の後に行われるので、カメラの移動が正しくなる
-        Vector3 setVector = transform.position;
+	private Vector2[] retryPosTbl = {
+		new Vector2(-20,-66),
+		new Vector2(2280,-66),
+	};
 
-        // プレイヤーの座標を設定する（オフセット指定もする 
-        setVector.x = player.transform.position.x;
-        setVector.y = player.transform.position.y + cameraOffsetY;
+	// Start is called before the first frame update
+	void Start()
+	{
+		readyText = GameObject.Find("Ready").GetComponent<Text>();
+		retrySystem = RetrySystem.Instance;
 
-        transform.position = setVector;
-        */
-    }
+		if (debugRetryNo != 0)
+		{
+			retrySystem.setRetryNo(debugRetryNo);
+		}
+
+		if (retryEnabled)
+		{
+			player.transform.position = retryPosTbl[retrySystem.getRetryNo()];
+		}
+	}
+
+	// Update is called once per frame
+	void Update()
+	{
+		if (FadeManager.Instance.checkFading())
+		{
+			return;
+		}
+
+		switch (Stage1Stat)
+		{
+			case 0:
+				// READY表示
+				ctr0 = 2.0f;
+				++Stage1Stat;
+				break;
+
+			case 1:
+				ctr0 -= Time.deltaTime;
+				if (ctr0 <= 0)
+				{
+					// テキストを非アクティブに
+					readyText.gameObject.SetActive(false);
+					++Stage1Stat;
+				}
+				break;
+
+			case 2:
+				if (player.activeSelf == false)
+				{
+					GameObject light = (GameObject)Resources.Load("Prefabs/EffectLight");
+					Instantiate(light, player.transform.position, player.transform.rotation);
+					player.SetActive(true);
+					//
+					++Stage1Stat;
+				}
+				break;
+
+			case 3:
+				// リトライポイント更新チェック
+				if (retrySystem.getRetryNo() < retryPosTbl.Length - 1 )
+				{
+					if (player.transform.position.x > retryPosTbl[retrySystem.getRetryNo() + 1].x)
+					{
+						retrySystem.incRetryNo();
+					}
+				}
+				break;
+		}
+	}
 }

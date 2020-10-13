@@ -13,9 +13,12 @@ public class Clear : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            FadeManager.Instance.LoadScene("Title", 0.5f);
-        }
+		if (!FadeManager.Instance.checkFading())
+		{
+			if (Input.GetKeyDown(KeyCode.Return))
+			{
+				FadeManager.Instance.LoadScene("Title", 0.5f);
+			}
+		}
     }
 }

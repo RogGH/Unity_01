@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class Boss : MonoBehaviour
 {
+	public bool debugFlag = true;
+
     // レイヤー
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
     public GameObject bossSlider;       // 体力バー
@@ -23,6 +25,7 @@ public class Boss : MonoBehaviour
     };
     private int actNo = 0;
     private int actMethodNo = 0;
+	private bool reJumpFlag = false;
     private float ctr0;
     private float ctr1;
     private float ctr2;
@@ -50,15 +53,21 @@ public class Boss : MonoBehaviour
     // パラメータ
     private int HitPoint = 0;
 
-    // 調整用
-    [SerializeField] float jumpPower = 400;
+	// 調整用
+	[SerializeField] float MaxHP = 500;
+	[SerializeField] float jumpSpdX = 200;
+	[SerializeField] float jumpPower = 400;
     [SerializeField] float runSpeed = 300;
     [SerializeField] float runLength = 48;
-    [SerializeField] float shotReadyWait = 0.3f;
+	[SerializeField] int shotRotRandom = 5;
+	[SerializeField] float shotReadyWait = 0.3f;
     [SerializeField] float groundShotWait = 0.4f;
-    [SerializeField] float airShotReadyWait = 0.3f;
-    [SerializeField] float airShotWait = 0.4f;
-    [SerializeField] float landingWait = 0.15f;
+	[SerializeField] int airShotPercent = 50;
+	[SerializeField] float airShotReadyWait = 0.3f;
+	[SerializeField] float airShotWait = 0.4f;
+	[SerializeField] float airShotNear = 64;
+	[SerializeField] float airShotFar = 140;
+	[SerializeField] float landingWait = 0.15f;
     [SerializeField] float swartWait = 0.5f;
 
     // ＳＥ
@@ -86,10 +95,14 @@ public class Boss : MonoBehaviour
         animator = GetComponent<Animator>();
         slider = bossSlider.GetComponent<Slider>();
         rigid2D = GetComponent<Rigidbody2D>();
-    }
 
-    // Update is called once per frame
-    void Update()
+		// 最大体力変更
+		slider.maxValue = MaxHP;
+
+	}
+
+	// Update is called once per frame
+	void Update()
     {
         // 体力値をバーに反映させる
         if (actNo != 0) {
@@ -109,8 +122,19 @@ public class Boss : MonoBehaviour
         actFuncTbl[actNo]();
     }
 
-    // 登場
-    void ActApp()
+	public Rect DebugDispPos = new Rect(0, 0, 100, 50);
+	void OnGUI()
+	{
+		if (!debugFlag)
+		{
+			return;
+		}
+		GUI.Label(DebugDispPos, getPlLengthX().ToString() );
+	}
+
+
+	// 登場
+	void ActApp()
     {
         if (!checkGrounded())
         {
@@ -183,7 +207,7 @@ public class Boss : MonoBehaviour
         GameObject shell1 = (GameObject)Resources.Load("Prefabs/EnemyShell1");
 
 		Vector3 bootOffset;
-		if ( rotDegree == 0 )
+		if ( getAnimeName() == ANAME_SHOT_F)
 		{
 			// 正面
 			bootOffset = new Vector3(30, 48, 0);
@@ -195,8 +219,11 @@ public class Boss : MonoBehaviour
 		// ＰＬが向いている方向にオフセットをずらす
 		bootOffset.x *= transform.localScale.x;
 
-        // 弾起動
-        GameObject boot;
+		// ランダム値を足す
+		rotDegree += Random.Range(0, shotRotRandom * 2) - shotRotRandom;
+
+		// 弾起動
+		GameObject boot;
         boot = Instantiate(shell1,
             transform.position + bootOffset,
             transform.rotation);
@@ -251,7 +278,7 @@ public class Boss : MonoBehaviour
                 if (decCtr0())
                 {
                     changeActNo(ACTNO.JUMP_SHOT);
-                }
+				}
                 break;
 
         }
@@ -279,31 +306,56 @@ public class Boss : MonoBehaviour
             case (int)JS_NO.UP_INIT:
                 animator.Play(ANAME_JUMP_U);
 
-                rigid2D.velocity.Set(0, 0);    // Ｙ軸速度を０に
-                rigid2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+				// 現在のプレイヤーとの位置から、ジャンプの方向を決める
+				{
+					float lengthX = Mathf.Abs(getPlLengthX());
+					float spdX = 0;
+
+					// 64dot以内
+					if (lengthX <= airShotNear)
+					{
+						// 離れる
+						spdX = jumpSpdX * -getPlDir();
+					}
+					else if (lengthX >= airShotFar)
+					{
+						// 近づく
+						spdX = jumpSpdX * getPlDir();
+					}
+					rigid2D.velocity = new Vector2(spdX, 0);    // Ｙ軸速度を０に
+				}
+				// ジャンプ力を設定
+				rigid2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
 
                 ++actMethodNo;
                 break;
 
             case (int)JS_NO.UP_MAIN:
-                if (rigid2D.velocity.y <= 0)
+				if (rigid2D.velocity.y <= 0)
                 {
+					int setMethodNo = (int)JS_NO.DOWN_INIT;
                     // ここでジャンプショットに行くかは確率
-                    if (Random.Range(0, 10) < 5 )
+                    if (Random.Range(0, 100) < airShotPercent)
                     {
-                        actMethodNo = (int)JS_NO.SHOT_READY_INIT;
-                    }
-                    else
-                    {
-                        actMethodNo = (int)JS_NO.DOWN_INIT;
-                    }
-                    ActJumpShot();
+						// この時点で遠すぎる場合、再度ジャンプへ行く
+						if (Mathf.Abs(getPlLengthX()) >= airShotFar){
+							// 再度ジャンプフラグを立てる
+							reJumpFlag = true;
+						}
+						else {
+							// そのまま撃つ
+							setMethodNo = (int)JS_NO.SHOT_READY_INIT;
+						}
+					}
+
+					actMethodNo = setMethodNo;
+					ActJumpShot();
                 }
                 break;
 
             case (int)JS_NO.SHOT_READY_INIT:
-                float height = transform.position.y - getPlLengthY() + 30.0f;
-                if (Mathf.Abs(height) <= 30.0f)
+                float height = getPlLengthY() + 30.0f;
+                if (Mathf.Abs(height) <= 20.0f)
                 {
                     // 正面
                     animator.Play(ANAME_SHOT_READY_F);
@@ -359,7 +411,7 @@ public class Boss : MonoBehaviour
                     {
                         --ctr2;                         // 発射数減算
                         ctr1 = 0.1f;                    // 再発射間隔を設定 
-                        shotMethodCtrl(getAnimeName() == ANAME_SHOT_F ? 0 : -45);
+                        shotMethodCtrl(getAnimeName() == ANAME_SHOT_F ? 5 : -35);
                     }
                 }
 
@@ -394,9 +446,16 @@ public class Boss : MonoBehaviour
                 // 着地したら終了
                 if (decCtr0())
                 {
-                    changeActNo(ACTNO.RUN);
-                }
-                break;
+					// 再ジャンプフラグが立っていたら再度ジャンプへ
+					if ( reJumpFlag ) {
+						actMethodNo = (int)JS_NO.UP_INIT;
+					}
+					else {
+						changeActNo(ACTNO.RUN);
+					}
+					reJumpFlag = false;
+				}
+				break;
         }
     }
 
