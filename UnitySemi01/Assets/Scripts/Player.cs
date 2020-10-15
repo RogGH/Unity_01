@@ -11,11 +11,6 @@ public class Player : MonoBehaviour
     public float jumpPower = 400.0f;  // ジャンプ力
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
 
-    public AudioClip jumpSE;            // ジャンプの発射SE
-    public AudioClip landingSE;           // 着地の発射SE
-    public AudioClip damageSE;          // ダメージSE
-    public AudioClip shell1ShotSE;       // shell1の発射SE
-
     // private変数(クラス外からアクセス不可能）
     // [SerializeField]をつけるとインスペクタで操作可能になる
     private Rigidbody2D rigid2D;    // コンポーネント用変数
@@ -123,10 +118,10 @@ public class Player : MonoBehaviour
             // 着地したかのチェック
             if ( !oldGrounded && isGrounded )
             {
-                // オーディオを再生
-                 AudioSource.PlayClipAtPoint(landingSE, transform.position);
-            }
-        }
+				// オーディオを再生
+				SeManager.Instance.Play("landing1");
+			}
+		}
 
         // 左右入力をチェック
         if (inputLR != 0)
@@ -287,7 +282,7 @@ public class Player : MonoBehaviour
                 animator.SetBool("JumpUp", true);
                 animator.SetBool("JumpDown", false);
                 // オーディオを再生
-                AudioSource.PlayClipAtPoint(jumpSE, transform.position);
+				SeManager.Instance.Play("laundry-basa1");
             }
         }
     }
@@ -351,10 +346,10 @@ public class Player : MonoBehaviour
                 transform.position + bootOffset,
                 transform.rotation);
             // オーディオを再生
-            AudioSource.PlayClipAtPoint(shell1ShotSE, transform.position);
+			SeManager.Instance.Play("shoot2");
 
-            // 発射フラグをONに
-            animator.SetBool("Shot", true);
+			// 発射フラグをONに
+			animator.SetBool("Shot", true);
             // 次弾発射までの待機時間を設定
             shotWait = SHOT_WAIT_DEFAULT;
 
@@ -400,9 +395,14 @@ public class Player : MonoBehaviour
             transform.position.y + (offsetY * transform.localScale.y),
             transform.position.z),
             transform.rotation);
+		// SE
+		SeManager.Instance.Play("bomb");
 
-        // 透明にする
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+		// BGM停止
+		BgmManager.Instance.Stop();
+
+		// 透明にする
+		SpriteRenderer sr = GetComponent<SpriteRenderer>();
         sr.color = new Color(1, 1, 1, 0);
 
         // 待つ
@@ -430,8 +430,10 @@ public class Player : MonoBehaviour
         {
             //ゲームクリアー
             FadeManager.Instance.LoadScene("Clear", 0.5f);
-        }
-    }
+			// BGM停止
+			BgmManager.Instance.Stop();
+		}
+	}
 
 
 
@@ -458,16 +460,18 @@ public class Player : MonoBehaviour
             }
             else
             {
-                // ダメージなので、ダメージ専用呼び出し処理
-                AudioSource.PlayClipAtPoint(this.damageSE, this.transform.position);
-                this.StartCoroutine("Damage");
+				// オーディオを再生
+				SeManager.Instance.Play("damage1");
+				this.StartCoroutine("Damage");
             }
         }
         else
         {
-            // 回復している
-            // 最大値を超えないように設定
-            if (this.HitPoint > (int)(this.slider.maxValue) )
+			// 回復している
+			SeManager.Instance.Play("itemGet");
+
+			// 最大値を超えないように設定
+			if (this.HitPoint > (int)(this.slider.maxValue) )
             {
                 this.HitPoint = (int)(this.slider.maxValue);
             }

@@ -8,7 +8,6 @@ public class Enemy1 : MonoBehaviour
 
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
     public GameObject bomb1;
-    public AudioClip explosionSE;       // 爆発SE
 
     private Rigidbody2D rigid2D;
     private BoxCollider2D boxColi2D;
@@ -86,8 +85,8 @@ public class Enemy1 : MonoBehaviour
                 transform.position.z),
                 transform.rotation);
 
-            // オーディオを再生
-            AudioSource.PlayClipAtPoint(explosionSE, transform.position);
+			// オーディオを再生
+			SeManager.Instance.Play("bomb");
             // アイテムを落とす処理（とりあえず２５％）
             if (Random.Range (0, 4) == 0) {
                 GameObject item = (GameObject)Resources.Load("Prefabs/Item1");

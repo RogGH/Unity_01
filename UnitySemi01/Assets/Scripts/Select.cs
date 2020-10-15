@@ -20,7 +20,7 @@ public class Select : MonoBehaviour
 			if (Input.GetKeyDown(KeyCode.Return))
 			{
 				retrySystem.clearRetryNo();
-				FadeManager.Instance.LoadScene("Stage1", 0.5f);
+				FadeManager.Instance.LoadScene("Stage1", 1);
 			}
 		}
     }

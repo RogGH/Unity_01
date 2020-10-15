@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class Title : MonoBehaviour
 {
-	public AudioClip decideSE;            // ジャンプの発射SE
-
-	private SoundManager sndMng;
-
 	// Start is called before the first frame update
 	void Start()
     {
-		sndMng = SoundManager.Instance;
-
+		BgmManager.Instance.Play("bgm_OP");
 	}
 
     // Update is called once per frame
@@ -23,8 +18,10 @@ public class Title : MonoBehaviour
 			if (Input.GetKeyDown(KeyCode.Return))
 			{
 				// オーディオを再生
-				AudioSource.PlayClipAtPoint(decideSE, transform.position);
+				SeManager.Instance.Play("decision18");
 				// ＢＧＭフェードアウト
+				BgmManager.Instance.Stop();
+				// 次のシーンへ
 				FadeManager.Instance.LoadScene("Select", 1.0f);
 			}
 		}

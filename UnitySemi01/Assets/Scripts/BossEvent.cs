@@ -22,14 +22,14 @@ public class BossEvent : MonoBehaviour
         // 戦闘中
         if (battleStat == 1)
         {
-            if (boss.GetComponent<Boss>().chkDie())
-            {
-                GameObject cam1 = GameObject.Find("CMvcam1");
-                CinemachineConfiner conf = cam1.GetComponent<CinemachineConfiner>();
-                conf.m_BoundingShape2D = defaultCamera;
+			if (boss.GetComponent<Boss>().chkDie())
+			{
+				GameObject cam1 = GameObject.Find("CMvcam1");
+				CinemachineConfiner conf = cam1.GetComponent<CinemachineConfiner>();
+				conf.m_BoundingShape2D = defaultCamera;
 
-                ++battleStat;
-            }
+				BgmManager.Instance.Play("bgm_Stage1");
+			}
         }
     }
 
@@ -47,6 +47,9 @@ public class BossEvent : MonoBehaviour
 
                 // ボスを起動してみる
                 boss.SetActive(true);
+
+				// ＢＧＭ変更
+				BgmManager.Instance.Stop();
 
                 ++battleStat;
             }

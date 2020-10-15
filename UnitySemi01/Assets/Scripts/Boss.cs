@@ -70,9 +70,6 @@ public class Boss : MonoBehaviour
 	[SerializeField] float landingWait = 0.15f;
     [SerializeField] float swartWait = 0.5f;
 
-    // ＳＥ
-    public AudioClip damageSE;          // ダメージSE
-
     // 定数
     const int DIE_END_NO = 0xff;
 
@@ -178,6 +175,9 @@ public class Boss : MonoBehaviour
                 ctr0 = 2.0f;        // ＨＰがマックスになる時間
                 ctr1 = bossSlider.GetComponent<Slider>().maxValue / ctr0 * Time.deltaTime;
 
+				// 
+				SeManager.Instance.Play("se_pipipi_1");
+
                 ++actMethodNo;
                 break;
 
@@ -193,8 +193,11 @@ public class Boss : MonoBehaviour
 
                     gameObject.layer = LayerMask.NameToLayer("Enemy");
 
-                    // 登場演出終了
-                    changeActNo(ACTNO.SHOT_F);
+					// ＳＥを鳴らしておく
+					BgmManager.Instance.Play("bgm_Boss");
+
+					// 登場演出終了
+					changeActNo(ACTNO.SHOT_F);
                 }
                 break;
         }
@@ -230,9 +233,12 @@ public class Boss : MonoBehaviour
         boot.GetComponent<EnemyShell1>().setup(
             (int)transform.localScale.x,
             rotDegree);
-    }
 
-    void ActShotF()
+		
+		SeManager.Instance.Play("shootBoss");
+	}
+
+	void ActShotF()
     {
         switch (actMethodNo)
         {
@@ -355,7 +361,7 @@ public class Boss : MonoBehaviour
 
             case (int)JS_NO.SHOT_READY_INIT:
                 float height = getPlLengthY() + 30.0f;
-                if (Mathf.Abs(height) <= 20.0f)
+                if (Mathf.Abs(height) <= 30.0f)
                 {
                     // 正面
                     animator.Play(ANAME_SHOT_READY_F);
@@ -411,7 +417,7 @@ public class Boss : MonoBehaviour
                     {
                         --ctr2;                         // 発射数減算
                         ctr1 = 0.1f;                    // 再発射間隔を設定 
-                        shotMethodCtrl(getAnimeName() == ANAME_SHOT_F ? 5 : -35);
+                        shotMethodCtrl(getAnimeName() == ANAME_SHOT_F ? -5 : -35);
                     }
                 }
 
@@ -482,7 +488,10 @@ public class Boss : MonoBehaviour
 
             case 2:
                 animator.Play(ANAME_SLASH);
-                ctr0 = swartWait;
+
+				SeManager.Instance.Play("katana-slash5");
+
+				ctr0 = swartWait;
                 ++actMethodNo;
                 break;
 
@@ -521,7 +530,10 @@ public class Boss : MonoBehaviour
 
                 ctr0 = 3.0f;
 
-                ++actMethodNo;
+				// ＢＧＭ変更
+				BgmManager.Instance.Stop();
+
+				++actMethodNo;
                 break;
 
             case 1:
@@ -661,10 +673,10 @@ public class Boss : MonoBehaviour
             else
             {
                 // ダメージなので、ダメージ専用呼び出し処理
-                AudioSource.PlayClipAtPoint(this.damageSE, this.transform.position);
-//               this.StartCoroutine("Damage");
-            }
-        }
+				SeManager.Instance.Play("damage1");
+				//               this.StartCoroutine("Damage");
+			}
+		}
     }
 
     public bool chkDie()

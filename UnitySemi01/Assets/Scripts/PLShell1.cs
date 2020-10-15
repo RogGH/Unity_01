@@ -35,7 +35,7 @@ public class PLShell1 : MonoBehaviour
     {
         if (collision.gameObject.layer == 8 )
         {
-            Destroy(gameObject);
+			Destroy(gameObject);
         }
     }
 }

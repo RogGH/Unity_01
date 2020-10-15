@@ -31,8 +31,13 @@ public class PLShell1Hit : MonoBehaviour
                 boss.GetComponent<Boss>().AddHitPoint(-AtkPower);
             }
 
-            // 敵に接触したら親毎消す
-            Destroy(transform.root.gameObject);
+			GameObject hit = (GameObject)Resources.Load("Prefabs/EffectHit");
+			Vector2 pos = transform.position;
+			pos.y += -5;
+			Instantiate(hit, pos, transform.rotation);
+
+			// 敵に接触したら親毎消す
+			Destroy(transform.root.gameObject);
         }
     }
 }

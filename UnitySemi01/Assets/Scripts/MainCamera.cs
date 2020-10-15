@@ -36,6 +36,9 @@ public class MainCamera : MonoBehaviour
 		{
 			player.transform.position = retryPosTbl[retrySystem.getRetryNo()];
 		}
+
+		// ＢＧＭ再生
+		BgmManager.Instance.Play("bgm_Stage1");
 	}
 
 	// Update is called once per frame
@@ -70,6 +73,8 @@ public class MainCamera : MonoBehaviour
 					GameObject light = (GameObject)Resources.Load("Prefabs/EffectLight");
 					Instantiate(light, player.transform.position, player.transform.rotation);
 					player.SetActive(true);
+					// ＳＥ再生
+					SeManager.Instance.Play("magic-worp1");
 					//
 					++Stage1Stat;
 				}
