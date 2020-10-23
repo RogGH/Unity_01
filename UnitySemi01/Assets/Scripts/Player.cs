@@ -405,8 +405,15 @@ public class Player : MonoBehaviour
 		SpriteRenderer sr = GetComponent<SpriteRenderer>();
         sr.color = new Color(1, 1, 1, 0);
 
-        // 待つ
-        yield return new WaitForSeconds(2f);
+		// 当たり判定を消す
+		rigid2D.velocity = new Vector2(0, 0);       // Ｙ軸速度を０に
+		rigid2D.angularVelocity = 0;
+		rigid2D.bodyType = RigidbodyType2D.Kinematic;
+
+		boxcolli2D.enabled = false;
+
+		// 待つ
+		yield return new WaitForSeconds(2f);
 
         // ゲームオブジェクトを破棄
         Destroy(gameObject);
