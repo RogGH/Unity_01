@@ -24,9 +24,9 @@ public class BossEvent : MonoBehaviour
         {
 			if (boss.GetComponent<Boss>().chkDie())
 			{
-				GameObject cam1 = GameObject.Find("CMvcam1");
-				CinemachineConfiner conf = cam1.GetComponent<CinemachineConfiner>();
-				conf.m_BoundingShape2D = defaultCamera;
+                GameObject cam1 = GameObject.Find("CMvcam1");
+				CinemachineVirtualCamera vCam = cam1.GetComponent<CinemachineVirtualCamera>();
+				vCam.Priority = 10;	// 優先度を戻す
 
 				BgmManager.Instance.Play("bgm_Stage1");
 			}
@@ -42,11 +42,12 @@ public class BossEvent : MonoBehaviour
             if (battleStat == 0)
             {
                 GameObject cam1 = GameObject.Find("CMvcam1");
-                CinemachineConfiner conf = cam1.GetComponent<CinemachineConfiner>();
-                conf.m_BoundingShape2D = bossCamera;
+				CinemachineVirtualCamera vCam = cam1.GetComponent<CinemachineVirtualCamera>();
+				vCam.Priority = 0;	// 優先度を最低に
 
-                // ボスを起動してみる
-                boss.SetActive(true);
+
+				// ボスを起動してみる
+				boss.SetActive(true);
 
 				// ＢＧＭ変更
 				BgmManager.Instance.Stop();
