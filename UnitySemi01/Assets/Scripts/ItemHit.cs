@@ -26,9 +26,9 @@ public class ItemHit : MonoBehaviour
         {
             // プレイヤーを取得して、HPを減らす
             GameObject player = GameObject.Find("Player");
-            player.GetComponent<Player>().AddHitPoint(RecoveryValue);
-            // 消す
-            GameObject.Destroy(this.gameObject);
+            player.GetComponent<Player>().addPLHitPoint(RecoveryValue);
+			// 消す
+			GameObject.Destroy(this.gameObject);
         }
     }
 }

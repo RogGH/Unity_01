@@ -22,7 +22,7 @@ public class BossEvent : MonoBehaviour
         // 戦闘中
         if (battleStat == 1)
         {
-			if (boss.GetComponent<Boss>().chkDie())
+			if (boss.GetComponent<Boss1>().chkDie())
 			{
                 GameObject cam1 = GameObject.Find("CMvcam1");
 				CinemachineVirtualCamera vCam = cam1.GetComponent<CinemachineVirtualCamera>();

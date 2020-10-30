@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6636328538762754738}
   - component: {fileID: 6806207778372091024}
   - component: {fileID: 8831669710471313669}
+  - component: {fileID: -7567909577335918113}
   m_Layer: 9
   m_Name: PLShell1
   m_TagString: PLShell
@@ -168,6 +169,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 6, y: 6}
   m_EdgeRadius: 0
+--- !u!114 &-7567909577335918113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 745562011293686507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90a3bdcf6d1e92a479d3b2e4cd963101, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 1
+  HP: 0
 --- !u!1 &4627884446019863049
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,6 +194,7 @@ GameObject:
   - component: {fileID: 3125043531192043255}
   - component: {fileID: 6666270844531923472}
   - component: {fileID: 6362498449062131041}
+  - component: {fileID: 8417082367041379225}
   m_Layer: 10
   m_Name: PLShell1Hit
   m_TagString: PLShell
@@ -228,4 +244,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4700b28b8073d94fadb2e17e3753199, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AtkPower: 5
+--- !u!114 &8417082367041379225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4627884446019863049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 245d3976aa231e44eaedd7d03c153cd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  atkPower: 5
+  atkKind: 0
+  atkElement: 0

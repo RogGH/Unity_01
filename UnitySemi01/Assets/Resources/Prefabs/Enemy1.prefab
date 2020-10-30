@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7885578248067239557}
   - component: {fileID: 7885578248067239556}
   - component: {fileID: 7885578248067239555}
+  - component: {fileID: 8285756093914202966}
   m_Layer: 12
   m_Name: Enemy1
   m_TagString: Enemy
@@ -183,12 +184,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8c62804accd0aa4b86839aea412b929, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 80
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
   bomb1: {fileID: 5109362322326883952, guid: ef4bd362119af78439744763e64deeb0, type: 3}
-  explosionSE: {fileID: 8300000, guid: b7d03c2acfafc2a4ab1dc98f8af4055e, type: 3}
+  speed: 80
+--- !u!114 &8285756093914202966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7885578248067239553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90a3bdcf6d1e92a479d3b2e4cd963101, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 15
+  HP: 15
+  hitResult: 0
 --- !u!1 &7885578248673314395
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +215,7 @@ GameObject:
   - component: {fileID: 7885578248673314396}
   - component: {fileID: 7885578248673314397}
   - component: {fileID: 7885578248673314398}
+  - component: {fileID: 8732854342424212256}
   m_Layer: 13
   m_Name: Enemy1Hit
   m_TagString: Enemy
@@ -249,5 +265,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79f8d4dbb56bed7488bc2dbd11f01d87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AtkPower: 10
   hitEndMaster: 0
+--- !u!114 &8732854342424212256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7885578248673314395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 245d3976aa231e44eaedd7d03c153cd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  atkPower: 10
+  atkElement: 1
+  atkKind: 0
+  atkGroup: 1
