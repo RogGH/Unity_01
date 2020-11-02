@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class ItemHit : MonoBehaviour
 {
-    public int RecoveryValue = 5;
+	private HitBase hitBase;
 
-    // Start is called before the first frame update
-    void Start()
+	// Start is called before the first frame update
+	void Start()
     {
-        
-    }
+		hitBase = GetComponentInParent<HitBase>();
+	}
 
-    // Update is called once per frame
-    void Update()
+	// Update is called once per frame
+	void Update()
     {
         
     }
@@ -24,11 +24,19 @@ public class ItemHit : MonoBehaviour
         // 接触した相手のタグがPlayerかチェック
         if (col.tag == "Player")
         {
-            // プレイヤーを取得して、HPを減らす
-            GameObject player = GameObject.Find("Player");
-            player.GetComponent<Player>().addPLHitPoint(RecoveryValue);
+			// ダメージ計算
+			int result = hitBase.damageCalc(
+				GetComponent<AtkParam>(),
+				col.gameObject.GetComponent<HitBase>());
+
+			// プレイヤーにリアクションをさせる
+			GameObject player = GameObject.Find("Player");
+			player.GetComponent<Player>().setPLReaction(result);
+
+			Debug.Log("hit" + this.gameObject.GetInstanceID());
+
 			// 消す
-			GameObject.Destroy(this.gameObject);
-        }
-    }
+			Destroy(transform.root.gameObject);
+		}
+	}
 }

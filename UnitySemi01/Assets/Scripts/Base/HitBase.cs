@@ -49,6 +49,8 @@ public class HitBase : MonoBehaviour
 	{
 		hitResult = 0;
 	}
+
+	// アクセサ
 	public int getMaxHP() { return maxHP; }
 	public int getHP() { return HP; }
 	public void setHP(int value) {
@@ -66,6 +68,15 @@ public class HitBase : MonoBehaviour
 		value += HP;
 		setHP(value);
 	}
+	public int getResult(){ return hitResult; }
+	public bool checkResultDie() { return hitResult == (int)RESULT.DIE ? true : false; }
+
+
+
+
+
+
+
 	public bool checkDie() { return HP > 0 ? false : true; }
 
 
@@ -94,7 +105,7 @@ public class HitBase : MonoBehaviour
 
 		// 攻撃側のリストをチェック
 		if (atk.getAtkList().Count > 0) {
-			// リストがあるので、同一リストを攻撃していないかチェック
+			// リストがあるので、すでに攻撃したオブジェクトを攻撃していないかチェック
 			foreach (GameObject defObj in atk.getAtkList()) {
 				// 同じインスタンスIDを攻撃していたらこれ以上行わない
 				if (defObj.GetInstanceID() == def.gameObject.GetInstanceID())
@@ -142,13 +153,25 @@ public class HitBase : MonoBehaviour
 
 		// カラーを変更
 		Color col;
- 		if (atk.getAtkGroup() == AtkParam.Group.PLAYER ) {
-			// プレイヤーの攻撃は黄色
-			col = new Color(1, 1, 0.5f, 1);
+		if (atkPow < 0)
+		{
+			// 回復
+			col = new Color(0.5f, 1, 0.5f, 1);
+			atkPow = Mathf.Abs(atkPow);
 		}
-		else {
-			// 敵の攻撃は赤
-			col = new Color(1, 0, 0, 1);
+		else
+		{
+			// ダメージ
+			if (atk.getAtkGroup() == AtkParam.Group.PLAYER)
+			{
+				// プレイヤーの攻撃は黄色
+				col = new Color(1, 1, 0.5f, 1);
+			}
+			else
+			{
+				// 敵の攻撃は赤
+				col = new Color(1, 0, 0, 1);
+			}
 		}
 
 		// ダメージテキストの起動
