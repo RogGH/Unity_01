@@ -183,6 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 1
   HP: 0
+  hitResult: 0
 --- !u!1 &4627884446019863049
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,5 +258,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   atkPower: 5
-  atkKind: 0
   atkElement: 0
+  atkKind: 0
+  atkGroup: 0

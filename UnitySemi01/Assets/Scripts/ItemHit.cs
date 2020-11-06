@@ -33,8 +33,6 @@ public class ItemHit : MonoBehaviour
 			GameObject player = GameObject.Find("Player");
 			player.GetComponent<Player>().setPLReaction(result);
 
-			Debug.Log("hit" + this.gameObject.GetInstanceID());
-
 			// 消す
 			Destroy(transform.root.gameObject);
 		}

@@ -5,51 +5,57 @@ public class Boss1 : MonoBehaviour
 {
 	public bool debugFlag = true;
 
-    // レイヤー
-    public LayerMask groundLayer;       // 地面チェック用のレイヤー
-    public GameObject bossSlider;       // 体力バー
+	// レイヤー
+	public LayerMask groundLayer;       // 地面チェック用のレイヤー
+	public GameObject bossSlider;       // 体力バー
+										// コンポーネント
+	private Slider slider;
 
-    private Animator animator;          // コンポーネント用変数
-    private Rigidbody2D rigid2D;        //
+	private Animator animator;          // コンポーネント用変数
+	private Rigidbody2D rigid2D;        //
+	private BoxCollider2D boxColi2D;
 	private HitBase hitBase;
 
-    // 行動関連
-    enum ACTNO : int{
-        APP,
-        SHOT_F,
-        JUMP_SHOT,
-        RUN,
+	// 行動関連
+	enum ACTNO : int {
+		APP,
+		SHOT_F,
+		JUMP_SHOT,
+		RUN,
 
-        DIE,
+		DIE,
 
-        NUM
-    };
-    private int actNo = 0;
-    private int actMethodNo = 0;
+		NUM
+	};
+	private int actNo = 0;
+	private int actMethodNo = 0;
 	private bool reJumpFlag = false;
-    private float ctr0;
-    private float ctr1;
-    private float ctr2;
-    // 関数テーブル
-    delegate void ActFunc();
-    private ActFunc[]actFuncTbl;
+	private float ctr0;
+	private float ctr1;
+	private float ctr2;
+	// 関数テーブル
+	delegate void ActFunc();
+	private ActFunc[] actFuncTbl;
 
-    // アニメーション名前
-    const string ANAME_RUN = "BS_Run";
-    const string ANAME_JUMP_U = "BS_JumpUp";
-    const string ANAME_JUMP_D = "BS_JumpDown";
-    const string ANAME_LANDING = "BS_Landing";
-    const string ANAME_IDLE = "BS_Idle";
-    const string ANAME_PAUSE = "BS_Pause";
-    const string ANAME_SHOT_READY_F = "BS_ShotReadyF";
-    const string ANAME_SHOT_READY_SD = "BS_ShotReadySlopeD";
-    const string ANAME_SHOT_F = "BS_ShotF";
-    const string ANAME_SHOT_SD = "BS_ShotSlopeD";
-    const string ANAME_SLASH = "BS_Slash";
-    const string ANAME_DIE = "BS_Die";
+	// アニメーション名前
+	const string ANAME_RUN = "BS_Run";
+	const string ANAME_JUMP_U = "BS_JumpUp";
+	const string ANAME_JUMP_D = "BS_JumpDown";
+	const string ANAME_LANDING = "BS_Landing";
+	const string ANAME_IDLE = "BS_Idle";
+	const string ANAME_PAUSE = "BS_Pause";
+	const string ANAME_SHOT_READY_F = "BS_ShotReadyF";
+	const string ANAME_SHOT_READY_SD = "BS_ShotReadySlopeD";
+	const string ANAME_SHOT_F = "BS_ShotF";
+	const string ANAME_SHOT_SD = "BS_ShotSlopeD";
+	const string ANAME_SLASH = "BS_Slash";
+	const string ANAME_DIE = "BS_Die";
 
-    // コンポーネント
-    private Slider slider;
+	enum CHILD_NO{
+		HIT_BODY,
+		HIT_SLASH,
+	};
+
 
 	// 調整用
 	[SerializeField] float jumpSpdX = 200;
@@ -92,6 +98,7 @@ public class Boss1 : MonoBehaviour
         animator = GetComponent<Animator>();
         slider = bossSlider.GetComponent<Slider>();
         rigid2D = GetComponent<Rigidbody2D>();
+		boxColi2D = GetComponent<BoxCollider2D>();
 		hitBase = GetComponent<HitBase>();
 
 		// 最大体力変更
@@ -500,11 +507,11 @@ public class Boss1 : MonoBehaviour
                 // 現在のアニメーターの状態をチェック
                 if ( 0.3 < getAnimeCtr() && getAnimeCtr() < 0.6 )
                 {
-                    transform.root.GetChild(1).gameObject.SetActive(true);
+                    transform.GetChild((int)CHILD_NO.HIT_SLASH).gameObject.SetActive(true);
                 }
                 else
                 {
-                    transform.root.GetChild(1).gameObject.SetActive(false);
+                    transform.GetChild((int)CHILD_NO.HIT_SLASH).gameObject.SetActive(false);
                 }
 
                 if (decCtr0())
@@ -552,9 +559,12 @@ public class Boss1 : MonoBehaviour
     private bool checkGrounded()
     {
         Vector3 chkPos = transform.position;
-        float boxHarfWitdh = GetComponent<BoxCollider2D>().size.x / 2;
+		float ofsY = boxColi2D.offset.y - boxColi2D.size.y / 2;
+		chkPos.y += ofsY;
+
+		float boxHarfWitdh = boxColi2D.size.x / 2;
         bool result = false;
-        Vector3 lineLength = transform.up * 0.05f;
+        Vector3 lineLength = -transform.up;
 
         // ３点チェック（とりあえず）
         chkPos.x = transform.position.x - boxHarfWitdh;
@@ -562,14 +572,15 @@ public class Boss1 : MonoBehaviour
         {
             // 自身の位置から↓に向かって線を引いて、地面に接触したかをチェックする
             result |= Physics2D.Linecast(
-                chkPos + transform.up,
-                chkPos - lineLength,
+                chkPos,
+                chkPos + lineLength,
                 groundLayer
                 );
             // レイを表示してみる
-            Debug.DrawLine(chkPos + transform.up,
-                chkPos - lineLength,
-                Color.red);
+    //        Debug.DrawLine(
+				//chkPos,
+				//chkPos + lineLength,
+				//Color.red);
 
             // オフセット加算
             chkPos.x += boxHarfWitdh;

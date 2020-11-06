@@ -10,12 +10,12 @@ public class Player : MonoBehaviour
     public float dashSpeedX = 120.0f;   // 歩くスピード
     public float jumpPower = 400.0f;  // ジャンプ力
     public LayerMask groundLayer;       // 地面チェック用のレイヤー
+	[SerializeField] BoxCollider2D boxcolli2D;// コンポーネント用変数
+	[SerializeField] Rigidbody2D rigid2D;    // コンポーネント用変数
 
-    // private変数(クラス外からアクセス不可能）
-    // [SerializeField]をつけるとインスペクタで操作可能になる
-    private Rigidbody2D rigid2D;    // コンポーネント用変数
-    private BoxCollider2D boxcolli2D;// コンポーネント用変数
-    private Animator animator;          // コンポーネント用変数
+	// private変数(クラス外からアクセス不可能）
+	// [SerializeField]をつけるとインスペクタで操作可能になる
+	private Animator animator;          // コンポーネント用変数
     private Slider slider;              // コンポーネント用変数
     private GameObject mainCamera;       // カメラ
 	private HitBase hitBase;
@@ -40,8 +40,6 @@ public class Player : MonoBehaviour
     void Start()
     {
         // コンポーネントを取得
-        rigid2D = GetComponent<Rigidbody2D>();
-        boxcolli2D = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
 		hitBase = GetComponent<HitBase>();
 		// ゲームオブジェクトを検索したのち、スライダーのコンポーネントを取得 
@@ -168,6 +166,23 @@ public class Player : MonoBehaviour
         }
     }
 
+	// 足元が中心座標じゃないので、足元へのオフセットを取得
+	public float getFootOfs()
+	{
+		return boxcolli2D.offset.y - boxcolli2D.size.y / 2;
+	}
+	public Vector3 getFootPos()
+	{
+		Vector3 footPos = transform.position;
+		footPos.y += getFootOfs();
+		return footPos;
+	}
+	public void setFootPos(Vector3 pos)
+	{
+		pos.y -= getFootOfs();
+		this.transform.position = pos;
+	}
+
     // 接地チェック
     bool checkGrounded()
     {
@@ -177,10 +192,10 @@ public class Player : MonoBehaviour
             return false;
         }
 
-        Vector3 chkPos = transform.position;
+        Vector3 chkPos = getFootPos();
         float boxHarfWitdh = boxcolli2D.size.x / 2;
         bool result = false;
-        Vector3 lineLength = transform.up * 0.05f;
+        Vector3 lineLength = -transform.up;
 
         // ３点チェック（とりあえず）
         chkPos.x = transform.position.x - boxHarfWitdh;
@@ -188,17 +203,17 @@ public class Player : MonoBehaviour
         {
             // 自身の位置から↓に向かって線を引いて、地面に接触したかをチェックする
             result |= Physics2D.Linecast(
-                chkPos + transform.up,
-                chkPos - lineLength,
+                chkPos,
+                chkPos + lineLength,
                 groundLayer
                 );
-            // レイを表示してみる
-            //Debug.DrawLine(chkPos + transform.up,
-            //    chkPos - lineLength,
-            //    Color.red);
+			// レイを表示してみる
+			Debug.DrawLine(chkPos,
+				chkPos + lineLength,
+				Color.red);
 
-            // オフセット加算
-            chkPos.x += boxHarfWitdh;
+			// オフセット加算
+			chkPos.x += boxHarfWitdh;
         }
         return result;
     }

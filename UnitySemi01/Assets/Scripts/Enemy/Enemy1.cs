@@ -119,8 +119,6 @@ public class Enemy1 : MonoBehaviour
 			GameObject item = (GameObject)Resources.Load("Prefabs/Item1");
 			Vector3 bootPos = new Vector3(transform.position.x, transform.position.y + 30, transform.position.z);
 			Instantiate(item, bootPos, transform.rotation);
-
-			Debug.Log("起動" + this.gameObject.GetInstanceID());
 		}
 
 		// オブジェクトを消す

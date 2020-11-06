@@ -2,22 +2,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BossEvent : MonoBehaviour
 {
     public Collider2D defaultCamera;
     public Collider2D bossCamera;
     public GameObject boss;
+	public GameObject bossSlider;       // 体力バー
 
-    int battleStat = 0;
+	int battleStat = 0;
 
     // Start is called before the first frame update
     void Start()
     {
-    }
+	}
 
-    // Update is called once per frame
-    void Update()
+	// Update is called once per frame
+	void Update()
     {
         // 戦闘中
         if (battleStat == 1)
@@ -27,10 +29,12 @@ public class BossEvent : MonoBehaviour
                 GameObject cam1 = GameObject.Find("CMvcam1");
 				CinemachineVirtualCamera vCam = cam1.GetComponent<CinemachineVirtualCamera>();
 				vCam.Priority = 10;	// 優先度を戻す
-
 				BgmManager.Instance.Play("bgm_Stage1");
+
+				// ボスHPを消す
+				bossSlider.SetActive(false);
 			}
-        }
+		}
     }
 
     void OnTriggerEnter2D(Collider2D collision)
