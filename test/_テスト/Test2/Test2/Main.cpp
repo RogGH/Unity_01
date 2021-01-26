@@ -78,27 +78,27 @@ using namespace std;
 
 
 // 関数テンプレート
-//template <class Type>
-//Type maxof(const Type* x, int n)
-//{
-//	Type max = x[0];
-//	for( int i = 1; i < n; ++i ){
-//		if( x[i] > max ){
-//			max = x[i];
-//		}
-//	}
-//	return max;
-//}
-//
-//int main(){
-//	const int isize = 5;
-//	int ix[isize] = {12, 35, 125, 2, 532};
-//	cout << "整数の最大値" << maxof(ix, isize) << "\n";
-//
-//	const int dsize = 5;
-//	double dx[dsize] = {539.2, 2.456, 95.5, 1239.5, 3.14};
-//	cout << "実数の最大値" << maxof(dx, dsize) << "\n";
-//}
+template <class Type>
+Type maxof(const Type* x, int n)
+{
+	Type max = x[0];
+	for( int i = 1; i < n; ++i ){
+		if( x[i] > max ){
+			max = x[i];
+		}
+	}
+	return max;
+}
+
+int main(){
+	const int isize = 5;
+	int ix[isize] = {12, 35, 125, 2, 532};
+	cout << "整数の最大値" << maxof(ix, isize) << "\n";
+
+	const int dsize = 5;
+	double dx[dsize] = {539.2, 2.456, 95.5, 1239.5, 3.14};
+	cout << "実数の最大値" << maxof(dx, dsize) << "\n";
+}
 
 // ポインタ2
 //int main()
@@ -108,6 +108,7 @@ using namespace std;
 //
 //	for( int i = 0; i < 5; ++i ){
 //		cout << ptr[i] << "\n";
+//		cout << &ptr[i] << "\n";
 //	}
 //}
 
